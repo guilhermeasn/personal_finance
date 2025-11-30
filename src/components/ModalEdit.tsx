@@ -3,11 +3,13 @@ import { Alert, Button, FloatingLabel, Form, Modal } from "react-bootstrap";
 import { MdError } from "react-icons/md";
 import type { Input } from "../assets/types";
 
-export type ModalAddProps = {
+export type ModalEditMode = 'C' | 'D' | [number, Input] | null;
+
+export type ModalEditProps = {
   show: boolean;
   categories?: string[];
   onHide: () => void;
-  onSave: (input: Input) => string | null;
+  onSave: (input: Input, index?: number) => string | null;
 }
 
 const inputDefault: Input = {
@@ -15,14 +17,14 @@ const inputDefault: Input = {
   value: 0, installment: null, done: false
 }
 
-export default function ModalAdd({ show, categories = [], onHide, onSave }: ModalAddProps) {
+export default function ModalEdit({ show, categories = [], onHide, onSave }: ModalEditProps) {
 
   const [input, setInput] = useState<Input>(inputDefault);
   const [error, setError] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState<boolean>(categories.length < 1);
 
   useEffect(() => setNewCategory(categories.length < 1), [categories]);
-  useEffect(() => (setError(null), setInput(inputDefault)), [show]);
+  useEffect(() => setError(null), [show]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,9 +36,9 @@ export default function ModalAdd({ show, categories = [], onHide, onSave }: Moda
 
     <Modal show={show} onHide={onHide} centered>
 
-      <Modal.Header className="rounded-bottom-0 alert alert-dark" closeButton>
+      <Modal.Header className="rounded-bottom-0 alert alert-warning" closeButton>
         <Modal.Title>
-          Nova Entrada
+          Editar Entrada
         </Modal.Title>
       </Modal.Header>
 
@@ -76,7 +78,7 @@ export default function ModalAdd({ show, categories = [], onHide, onSave }: Moda
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Valor">
-            <Form.Control type="number" placeholder=" " value={input.value} onChange={(e) => setInput({ ...input, value: Number(e.target.value) })} />
+            <Form.Control type="number" placeholder=" " value={input.value < 0 ? input.value * -1 : input.value} onChange={(e) => setInput({ ...input, value: Number(e.target.value) })} />
           </FloatingLabel>
 
         </Modal.Body>
@@ -85,7 +87,13 @@ export default function ModalAdd({ show, categories = [], onHide, onSave }: Moda
           <Button variant="outline-secondary" onClick={onHide}>
             Cancelar
           </Button>
-          <Button variant="dark" type="submit">
+          <Button variant="danger" onClick={onHide}>
+            Excluir
+          </Button>
+          <Button variant="info" onClick={onHide}>
+            Copiar
+          </Button>
+          <Button variant='warning' type="submit">
             Salvar
           </Button>
         </Modal.Footer>

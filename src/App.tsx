@@ -1,8 +1,11 @@
 import { useState } from "react";
+import type { Input } from "./assets/types";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
-import ModalAdd, { type ModalAddMode } from "./components/ModalAdd";
+import ModalAdd from "./components/ModalAdd";
+import ModalConfirm from "./components/ModalConfirm";
+import ModalEdit from "./components/ModalEdit";
 import Selection from "./components/Selection";
 
 const data = [
@@ -18,7 +21,8 @@ export default function App() {
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
   const [category, setCategory] = useState<string>();
-  const [modal, setModal] = useState<ModalAddMode>(null);
+  const [modal, setModal] = useState<boolean | [number, Input]>(false);
+  const [confirm, setConfirm] = useState<string | null | [string, () => void]>(null);
 
   return (
 
@@ -44,15 +48,28 @@ export default function App() {
         />
 
         <Buttons
-          onDebit={() => setModal('D')}
-          onCredit={() => setModal('C')}
+          onAdd={() => setModal(true)}
         />
 
         <ModalAdd
-          mode={modal}
+          show={modal === true}
           categories={categories}
-          onHide={() => setModal(null)}
+          onHide={() => setModal(false)}
           onSave={(input) => JSON.stringify(input)}
+        />
+
+        <ModalEdit
+          show={Array.isArray(modal)}
+          categories={categories}
+          onHide={() => setModal(false)}
+          onSave={(input) => JSON.stringify(input)}
+        />
+
+        <ModalConfirm
+          show={confirm !== null}
+          onHide={() => setConfirm(null)}
+          message={Array.isArray(confirm) ? confirm[0] : confirm}
+          onConfirm={Array.isArray(confirm) ? confirm[1] : undefined}
         />
 
       </main>
