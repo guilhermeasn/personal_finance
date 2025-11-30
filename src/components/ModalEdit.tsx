@@ -26,7 +26,7 @@ export default function ModalEdit({ edit, categories = [], onHide, onSave }: Mod
   const [newCategory, setNewCategory] = useState<boolean>(categories.length < 1);
 
   useEffect(() => setNewCategory(categories.length < 1), [categories]);
-  useEffect(() => setError(null), [edit]);
+  useEffect(() => (setError(null), setInput(edit?.[1] || inputDefault)), [edit]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,7 +80,7 @@ export default function ModalEdit({ edit, categories = [], onHide, onSave }: Mod
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Valor">
-            <Form.Control type="number" placeholder=" " value={input.value < 0 ? input.value * -1 : input.value} onChange={(e) => setInput({ ...input, value: Number(e.target.value) })} />
+            <Form.Control type="number" placeholder=" " value={input.value} onChange={(e) => setInput({ ...input, value: Number(e.target.value) })} />
           </FloatingLabel>
 
         </Modal.Body>
