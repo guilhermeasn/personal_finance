@@ -55,14 +55,16 @@ export default function App() {
           show={modal === true}
           categories={categories}
           onHide={() => setModal(false)}
-          onSave={(input) => JSON.stringify(input)}
+          onSave={(input) => (console.log(input), null)}
         />
 
         <ModalEdit
-          show={Array.isArray(modal)}
+          edit={Array.isArray(modal) ? modal : null}
           categories={categories}
           onHide={() => setModal(false)}
-          onSave={(input) => JSON.stringify(input)}
+          onCopy={(input) => console.log(input)}
+          onDelete={(index) => console.log(index)}
+          onSave={(input) => (console.log(input), null)}
         />
 
         <ModalConfirm

@@ -6,10 +6,12 @@ import type { Input } from "../assets/types";
 export type ModalEditMode = 'C' | 'D' | [number, Input] | null;
 
 export type ModalEditProps = {
-  show: boolean;
+  edit: [number, Input] | null;
   categories?: string[];
   onHide: () => void;
-  onSave: (input: Input, index?: number) => string | null;
+  onCopy: (input: Input) => void;
+  onDelete: (index: number) => void;
+  onSave: (input: Input, index: number) => string | null;
 }
 
 const inputDefault: Input = {
@@ -17,24 +19,24 @@ const inputDefault: Input = {
   value: 0, installment: null, done: false
 }
 
-export default function ModalEdit({ show, categories = [], onHide, onSave }: ModalEditProps) {
+export default function ModalEdit({ edit, categories = [], onHide, onSave }: ModalEditProps) {
 
   const [input, setInput] = useState<Input>(inputDefault);
   const [error, setError] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState<boolean>(categories.length < 1);
 
   useEffect(() => setNewCategory(categories.length < 1), [categories]);
-  useEffect(() => setError(null), [show]);
+  useEffect(() => setError(null), [edit]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = onSave(input);
+    const error = onSave(input, edit?.[0] || 0);
     error ? setError(error) : onHide();
   }
 
   return (
 
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={edit !== null} onHide={onHide} centered>
 
       <Modal.Header className="rounded-bottom-0 alert alert-warning" closeButton>
         <Modal.Title>
