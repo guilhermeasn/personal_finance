@@ -43,9 +43,9 @@ export default function Month({ month, onChange = () => { } }: MonthProps) {
           </Form.Select>
         </FloatingLabel>
 
-        <div className="d-flex align-items-center text-center text-primary mx-2">
-          <Button variant="link" size="sm" onClick={() => onChange(current)}>
-            <MdAutorenew size={24} />
+        <div className="d-flex align-items-center text-center mx-2">
+          <Button className="text-warning-emphasis" variant="link" size="sm" onClick={() => onChange(current)}>
+            <MdAutorenew size={32} />
           </Button>
         </div>
 
