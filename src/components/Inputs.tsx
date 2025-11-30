@@ -22,7 +22,7 @@ export default function Inputs({ data, onEdit = () => { } }: InputProps) {
 
           <tbody>
 
-            {data ? data.map((input, index) => (
+            {data && data.length > 0 ? data.map((input, index) => (
 
               <tr key={index} className="border-white clickable" onClick={() => onEdit(index)}>
 

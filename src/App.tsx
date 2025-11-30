@@ -1,33 +1,32 @@
 import { useState } from "react";
+import { useCategories, useMonth } from "./assets/data";
 import type { Input } from "./assets/types";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
+import ModalCategories from "./components/ModalCategories";
 import ModalConfirm from "./components/ModalConfirm";
 import ModalInput from "./components/ModalInput";
 import Selection from "./components/Selection";
 
-const data = [
-  { day: 2, category: "asdfasd", description: "dasdfsfasdfasdfasd dfafdasff ads fsdaf ", value: 300, installment: null, done: true },
-  { day: 15, category: "asdfasd", description: "dasdfsfasdfasdfasd dfafdasff ads fsdaf ", value: -100, installment: { id: "1", current: 1, total: 3 }, done: true },
-  { day: 30, category: "asdfasd", description: "dasdfsfasdfasdfasd dfafdasff ads fsdaf ", value: -100, installment: null, done: false },
-]
-
 export default function App() {
-
-  const categories = data.map(i => i.category).filter((value, index, self) => self.indexOf(value) === index);
 
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
   const [category, setCategory] = useState<string>();
+
+  const [categories, setCategories] = useCategories();
+  const [data, setData] = useMonth(month, year);
+
   const [modal, setModal] = useState<boolean | [number, Input]>(false);
   const [confirm, setConfirm] = useState<string | null | [string, () => void]>(null);
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
 
   return (
 
     <>
 
-      <Header onChangeDataBase={() => console.log("backup")} />
+      <Header onChangeDataBase={() => { }} />
 
       <main>
 
@@ -48,6 +47,7 @@ export default function App() {
 
         <Buttons
           onAdd={() => setModal(true)}
+          onCategories={() => setShowCategoriesModal(true)}
         />
 
         <ModalInput
@@ -62,6 +62,13 @@ export default function App() {
           onHide={() => setConfirm(null)}
           message={Array.isArray(confirm) ? confirm[0] : confirm}
           onConfirm={Array.isArray(confirm) ? confirm[1] : undefined}
+        />
+
+        <ModalCategories
+          show={showCategoriesModal}
+          onHide={() => setShowCategoriesModal(false)}
+          categories={categories}
+          onSave={setCategories}
         />
 
       </main>

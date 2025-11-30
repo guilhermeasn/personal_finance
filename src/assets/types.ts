@@ -6,7 +6,7 @@ export type Installment = {
 
 export type Input = {
   day: number;
-  category: string;
+  category: number;
   description: string;
   value: number;
   installment: Installment | null;

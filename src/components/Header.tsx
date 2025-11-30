@@ -1,5 +1,4 @@
 import { Container, Navbar } from "react-bootstrap";
-import { FaDatabase } from "react-icons/fa";
 
 export type HeaderProps = {
   onChangeDataBase: () => void;
@@ -12,9 +11,9 @@ export default function Header({ onChangeDataBase }: HeaderProps) {
         <Navbar.Brand href=".">
           Personal Finance
         </Navbar.Brand>
-        <div className="ms-auto text-warning-emphasis">
+        {/* <div className="ms-auto text-warning-emphasis">
           <FaDatabase size={24} className="clickable" onClick={onChangeDataBase} />
-        </div>
+        </div> */}
       </Container>
     </Navbar>
   )
