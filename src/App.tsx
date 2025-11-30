@@ -1,8 +1,8 @@
 import { useState } from "react";
+import Buttons from "./components/Buttons";
 import Header from "./components/Header";
+import Inputs from "./components/Inputs";
 import Month from "./components/Month";
-
-// localforage.keys().then(console.log);
 
 export default function App() {
 
@@ -17,7 +17,8 @@ export default function App() {
       <main>
 
         <Month month={month} onChange={setMonth} />
-
+        <Inputs />
+        <Buttons />
 
       </main>
 

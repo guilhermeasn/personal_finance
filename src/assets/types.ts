@@ -4,14 +4,13 @@ export type Installment = {
   total: number;
 }
 
-export type Item = {
-  input?: boolean;
+export type Input = {
   date: number;
   category: string;
   description: string;
   value: number;
-  installment?: Installment;
+  installment: Installment | null;
   done: boolean;
 }
 
-export type Month = Item[];
+export type Month = Input[];

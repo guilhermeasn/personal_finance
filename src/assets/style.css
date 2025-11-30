@@ -6,3 +6,16 @@
 body {
   background-color: #eee;
 }
+
+.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.clickable:hover {
+  filter: brightness(1.1);
+}
+
+.button-min-width {
+  min-width: 120px;
+}

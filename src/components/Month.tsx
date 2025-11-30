@@ -45,7 +45,7 @@ export default function Month({ month, onChange = () => { } }: MonthProps) {
 
         <div className="d-flex align-items-center text-center text-primary mx-2">
           <Button variant="link" size="sm" onClick={() => onChange(current)}>
-            <MdAutorenew size={20} />
+            <MdAutorenew size={24} />
           </Button>
         </div>
 
