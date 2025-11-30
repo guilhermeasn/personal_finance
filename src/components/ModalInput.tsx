@@ -6,10 +6,8 @@ import type { Input } from "../assets/types";
 export type ModalInputProps = {
   show: boolean;
   categories?: string[];
-  initialInput?: Input;
   onHide: () => void;
   onSave: (input: Input) => string | null;
-  onDelete?: () => void;
 }
 
 const inputDefault: Input = {
@@ -17,19 +15,12 @@ const inputDefault: Input = {
   value: 0, installment: null, done: false
 }
 
-export default function ModalInput({ show, categories = [], initialInput, onHide, onSave, onDelete }: ModalInputProps) {
+export default function ModalInput({ show, categories = [], onHide, onSave }: ModalInputProps) {
 
   const [input, setInput] = useState<Input>(inputDefault);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setError(null);
-    if (show && initialInput) {
-      setInput(initialInput);
-    } else {
-      setInput(inputDefault);
-    }
-  }, [show, initialInput]);
+  useEffect(() => (setError(null), setInput(inputDefault)), [show]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,9 +32,9 @@ export default function ModalInput({ show, categories = [], initialInput, onHide
 
     <Modal show={show} onHide={onHide} centered>
 
-      <Modal.Header className={`rounded-bottom-0 alert alert-${initialInput ? 'warning' : 'dark'}`} closeButton>
+      <Modal.Header className="rounded-bottom-0 alert alert-dark" closeButton>
         <Modal.Title>
-          {initialInput ? 'Editar Entrada' : 'Nova Entrada'}
+          Nova Entrada
         </Modal.Title>
       </Modal.Header>
 
@@ -86,12 +77,7 @@ export default function ModalInput({ show, categories = [], initialInput, onHide
           <Button variant="outline-secondary" onClick={onHide}>
             Cancelar
           </Button>
-          {onDelete && (
-            <Button variant="danger" onClick={onDelete}>
-              Excluir
-            </Button>
-          )}
-          <Button variant={initialInput ? 'warning' : 'dark'} type="submit">
+          <Button variant="dark" type="submit">
             Salvar
           </Button>
         </Modal.Footer>
