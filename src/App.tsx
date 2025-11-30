@@ -57,18 +57,18 @@ export default function App() {
           onSave={(input) => (console.log(input), null)}
         />
 
-        <ModalConfirm
-          show={confirm !== null}
-          onHide={() => setConfirm(null)}
-          message={Array.isArray(confirm) ? confirm[0] : confirm}
-          onConfirm={Array.isArray(confirm) ? confirm[1] : undefined}
-        />
-
         <ModalCategories
           show={showCategoriesModal}
           onHide={() => setShowCategoriesModal(false)}
           categories={categories}
           onSave={setCategories}
+        />
+
+        <ModalConfirm
+          show={confirm !== null}
+          onHide={() => setConfirm(null)}
+          message={Array.isArray(confirm) ? confirm[0] : confirm}
+          onConfirm={Array.isArray(confirm) ? confirm[1] : undefined}
         />
 
       </main>

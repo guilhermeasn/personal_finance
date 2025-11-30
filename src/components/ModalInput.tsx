@@ -1,3 +1,4 @@
+import { getPresetMask, useMask } from "mask-hooks";
 import { useEffect, useState } from "react";
 import { Alert, Button, FloatingLabel, Form, Modal } from "react-bootstrap";
 import { MdError } from "react-icons/md";
@@ -10,21 +11,25 @@ export type ModalInputProps = {
   onSave: (input: Input) => string | null;
 }
 
-const inputDefault: Input = {
-  day: new Date().getDate(), category: "", description: "",
-  value: 0, installment: null, done: false
-}
-
 export default function ModalInput({ show, categories = [], onHide, onSave }: ModalInputProps) {
 
-  const [input, setInput] = useState<Input>(inputDefault);
+  const dayMask = useMask({ masks: '[1-31]' });
+  const valueMask = useMask(getPresetMask('CURRENCY_PTBR'));
+  const reccurenceMask = useMask({ masks: '###' });
+
+  const dataDefault = {
+    day: dayMask(new Date().getDate()), category: '', description: "",
+    value: valueMask('0'), reccurence: reccurenceMask('1'), done: true
+  }
+
+  const [data, setData] = useState(dataDefault);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => (setError(null), setInput(inputDefault)), [show]);
+  useEffect(() => (setError(null), setData(dataDefault)), [show]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = onSave(input);
+    // const error = onSave(input);
     error ? setError(error) : onHide();
   }
 
@@ -49,27 +54,53 @@ export default function ModalInput({ show, categories = [], onHide, onSave }: Mo
             </Alert>
           )}
 
-          <FloatingLabel className="my-2" label="Data">
-            <Form.Control type="number" placeholder=" " value={input.day} onChange={(e) => setInput({ ...input, day: Number(e.target.value) })} />
+          <FloatingLabel className="my-2" label="Dia">
+            <Form.Control type="text" placeholder=" " value={data.day} onChange={(e) => setData({ ...data, day: dayMask(e.target.value) })} />
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Categoria">
-            <Form.Select value={input.category} onChange={(e) => setInput({ ...input, category: e.target.value })}>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
+            <Form.Select value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })}>
+              {!categories || categories.length === 0 ? (
+                <option value="" disabled>
+                  Nenhuma categoria cadastrada ainda
                 </option>
-              ))}
+              ) : (
+                categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))
+              )}
             </Form.Select>
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Descrição">
-            <Form.Control type="text" placeholder=" " value={input.description} onChange={(e) => setInput({ ...input, description: e.target.value })} />
+            <Form.Control type="text" placeholder=" " value={data.description} onChange={(e) => setData({ ...data, description: e.target.value })} />
+          </FloatingLabel>
+
+          <FloatingLabel className="my-2" label="Tipo de Operação">
+            <Form.Select>
+              <option value="-">Débito (-)</option>
+              <option value="+">Crédito (+)</option>
+            </Form.Select>
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Valor">
-            <Form.Control type="number" placeholder=" " value={input.value} onChange={(e) => setInput({ ...input, value: Number(e.target.value) })} />
+            <Form.Control type="text" placeholder=" " value={data.value} onChange={(e) => setData({ ...data, value: valueMask(e.target.value) })} />
           </FloatingLabel>
+
+          <FloatingLabel className="my-2" label="Recorrência">
+            <Form.Control type="text" placeholder=" " value={data.reccurence} onChange={(e) => setData({ ...data, reccurence: reccurenceMask(e.target.value) })} />
+          </FloatingLabel>
+
+          <div className="d-flex justify-content-center">
+            <Form.Check
+              type="switch"
+              label="Entrada Confirmada"
+              checked={data.done}
+              onChange={(e) => setData({ ...data, done: e.target.checked })}
+            />
+          </div>
 
         </Modal.Body>
 
