@@ -4,13 +4,14 @@ import type { Month } from "../assets/types";
 
 export type InputProps = {
   data?: Month;
+  onEdit?: (index: number) => void;
 }
 
 function tdClass(value: number, className?: string): string {
   return "" + (value < 0 ? "text-danger" : "text-primary") + (className ? " " + className : "");
 }
 
-export default function Inputs({ data }: InputProps) {
+export default function Inputs({ data, onEdit = () => { } }: InputProps) {
 
   const total: number | null = data ? data.reduce((total, input) => total + input.value, 0) : null;
 
@@ -23,7 +24,7 @@ export default function Inputs({ data }: InputProps) {
 
             {data ? data.map((input, index) => (
 
-              <tr key={index} className="border-white clickable">
+              <tr key={index} className="border-white clickable" onClick={() => onEdit(index)}>
 
                 <td className={tdClass(input.value, "text-start d-flex")}>
                   <span className={"me-2 " + (input.done ? "" : " text-white")}>
@@ -42,6 +43,14 @@ export default function Inputs({ data }: InputProps) {
                   {input.description}
                 </td>
 
+                <td className={tdClass(input.value, "text-center")}>
+                  {input.installment ? (
+                    <>
+                      {input.installment.current} de {input.installment.total}
+                    </>
+                  ) : 'Único'}
+                </td>
+
                 <th className={tdClass(input.value, "text-end")}>
                   {input.value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
@@ -51,7 +60,7 @@ export default function Inputs({ data }: InputProps) {
             )) : (
 
               <tr>
-                <td colSpan={4} className="border-white text-center">
+                <td colSpan={5} className="border-white text-center">
                   Nenhum dado encontrado
                 </td>
               </tr>
@@ -63,24 +72,25 @@ export default function Inputs({ data }: InputProps) {
           {total ? (
             <tfoot>
               <tr>
-                <td colSpan={4} className="m-0 p-0">
+                <td colSpan={5} className="m-0 p-0">
                   &nbsp;
                 </td>
               </tr>
               <tr>
-                <th colSpan={3} className="border-white text-start text-dark h5">
+                <th colSpan={4} className="border-white text-start text-dark h5">
                   Total
                 </th>
                 <th className={tdClass(total, "border-white text-end h5")}>
                   {total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
               </tr>
-            </tfoot>
-          ) : null}
+            </tfoot >
+          ) : null
+          }
 
-        </Table>
-      </div>
-    </Container>
+        </Table >
+      </div >
+    </Container >
   )
 
 }

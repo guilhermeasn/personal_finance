@@ -1,30 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, FloatingLabel, Form, Modal } from "react-bootstrap";
 import type { Input } from "../assets/types";
 
+export type ModalAddMode = 'C' | 'D' | [number, Input] | null;
+
 export type ModalAddProps = {
-  show: boolean;
+  mode: ModalAddMode;
   onHide: () => void;
-  onSave: (input: Input) => string | null;
+  onSave: (input: Input, index?: number) => string | null;
 }
 
-export default function ModalAdd({ show, onHide, onSave }: ModalAddProps) {
+const inputDefault: Input = {
+  date: new Date().getTime(), category: "", description: "",
+  value: 0, installment: null, done: false
+}
+
+export default function ModalAdd({ mode, onHide, onSave }: ModalAddProps) {
 
   const date = new Date();
   const today = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 
-  const [input, setInput] = useState<Input>({
-    date: today,
-    category: "",
-    description: "",
-    value: 0,
-    installment: null,
-    done: false
-  });
+  const [input, setInput] = useState<Input>(inputDefault);
+
+  useEffect(() => {
+    setInput((typeof mode === 'object' && Array.isArray(mode))
+      ? mode[1]
+      : inputDefault);
+  }, [mode]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = onSave(input);
+    const error = onSave(input, (typeof mode === 'object' && Array.isArray(mode)) ? mode[0] : undefined);
     if (error) {
       alert(error);
     } else {
@@ -34,10 +40,12 @@ export default function ModalAdd({ show, onHide, onSave }: ModalAddProps) {
 
   return (
 
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={mode !== null} onHide={onHide} centered>
 
-      <Modal.Header className="alert alert-primary rounded-bottom-0" closeButton>
-        <Modal.Title>Adicionar</Modal.Title>
+      <Modal.Header className={"rounded-bottom-0 alert alert-" + (mode === 'C' ? 'primary' : mode === 'D' ? 'danger' : 'warning')} closeButton>
+        <Modal.Title>
+          {mode === 'C' ? 'Crédito' : mode === 'D' ? 'Débito' : 'Editar'}
+        </Modal.Title>
       </Modal.Header>
 
       <Form onSubmit={save}>
@@ -66,7 +74,7 @@ export default function ModalAdd({ show, onHide, onSave }: ModalAddProps) {
           <Button variant="secondary" onClick={onHide}>
             Fechar
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant={mode === 'C' ? 'primary' : mode === 'D' ? 'danger' : 'warning'} type="submit">
             Salvar
           </Button>
         </Modal.Footer>
