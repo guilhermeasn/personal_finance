@@ -1302,6 +1302,11 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+mask-hooks@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/mask-hooks/-/mask-hooks-3.3.2.tgz#914e98d5d6eebfca95cd08e35643f5af6dde609b"
+  integrity sha512-ouJBwwWI/VZ+iVkaduN8MCACT0fLzmc1ttmsSzSuCvKPIm29k1FSs228C6tre3RD8kFle9h5TzUILxwjS+N8sw==
+
 minimatch@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.2.tgz#19cd194bfd3e428f049a70817c038d89ab4be35b"

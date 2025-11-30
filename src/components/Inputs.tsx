@@ -31,7 +31,7 @@ export default function Inputs({ data, onEdit = () => { } }: InputProps) {
                     <MdOutlineCheckCircle size={24} />
                   </span>
                   <span>
-                    {new Date(input.date).toLocaleDateString("pt-BR")}
+                    {input.day}
                   </span>
                 </td>
 
