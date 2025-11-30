@@ -1,7 +1,11 @@
 import { Container, Navbar } from "react-bootstrap";
 import { FaDatabase } from "react-icons/fa";
 
-export default function Header() {
+export type HeaderProps = {
+  onChangeDataBase: () => void;
+}
+
+export default function Header({ onChangeDataBase }: HeaderProps) {
   return (
     <Navbar bg="dark" data-bs-theme="dark" as='header'>
       <Container>
@@ -9,7 +13,7 @@ export default function Header() {
           Personal Finance
         </Navbar.Brand>
         <div className="ms-auto text-warning-emphasis">
-          <FaDatabase size={24} className="clickable" />
+          <FaDatabase size={24} className="clickable" onClick={onChangeDataBase} />
         </div>
       </Container>
     </Navbar>
