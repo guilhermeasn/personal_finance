@@ -3,15 +3,11 @@ import { Alert, Button, FloatingLabel, Form, Modal } from "react-bootstrap";
 import { MdError } from "react-icons/md";
 import type { Input } from "../assets/types";
 
-export type ModalEditMode = 'C' | 'D' | [number, Input] | null;
-
-export type ModalEditProps = {
-  edit: [number, Input] | null;
+export type ModalInputProps = {
+  show: boolean;
   categories?: string[];
   onHide: () => void;
-  onCopy: (input: Input) => void;
-  onDelete: (index: number) => void;
-  onSave: (input: Input, index: number) => string | null;
+  onSave: (input: Input) => string | null;
 }
 
 const inputDefault: Input = {
@@ -19,28 +15,26 @@ const inputDefault: Input = {
   value: 0, installment: null, done: false
 }
 
-export default function ModalEdit({ edit, categories = [], onHide, onSave }: ModalEditProps) {
+export default function ModalInput({ show, categories = [], onHide, onSave }: ModalInputProps) {
 
   const [input, setInput] = useState<Input>(inputDefault);
   const [error, setError] = useState<string | null>(null);
-  const [newCategory, setNewCategory] = useState<boolean>(categories.length < 1);
 
-  useEffect(() => setNewCategory(categories.length < 1), [categories]);
-  useEffect(() => (setError(null), setInput(edit?.[1] || inputDefault)), [edit]);
+  useEffect(() => (setError(null), setInput(inputDefault)), [show]);
 
   const save = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = onSave(input, edit?.[0] || 0);
+    const error = onSave(input);
     error ? setError(error) : onHide();
   }
 
   return (
 
-    <Modal show={edit !== null} onHide={onHide} centered>
+    <Modal show={show} onHide={onHide} centered>
 
-      <Modal.Header className="rounded-bottom-0 alert alert-warning" closeButton>
+      <Modal.Header className="rounded-bottom-0 alert alert-dark" closeButton>
         <Modal.Title>
-          Editar Entrada
+          Nova Entrada
         </Modal.Title>
       </Modal.Header>
 
@@ -60,19 +54,13 @@ export default function ModalEdit({ edit, categories = [], onHide, onSave }: Mod
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Categoria">
-            {newCategory ? (
-              <Form.Control type="text" placeholder=" " value={input.category} onChange={(e) => setInput({ ...input, category: e.target.value })} />
-            ) : (
-              <Form.Select value={input.category} onChange={(e) => e.target.value === '__new__' ? (setNewCategory(true), setInput({ ...input, category: '' })) : setInput({ ...input, category: e.target.value })}>
-                {categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
-                  </option>
-                ))}
-                <option value="" disabled>-----</option>
-                <option value="__new__">Nova Categoria</option>
-              </Form.Select>
-            )}
+            <Form.Select value={input.category} onChange={(e) => setInput({ ...input, category: e.target.value })}>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
+            </Form.Select>
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Descrição">
@@ -89,13 +77,7 @@ export default function ModalEdit({ edit, categories = [], onHide, onSave }: Mod
           <Button variant="outline-secondary" onClick={onHide}>
             Cancelar
           </Button>
-          <Button variant="danger" onClick={onHide}>
-            Excluir
-          </Button>
-          <Button variant="info" onClick={onHide}>
-            Copiar
-          </Button>
-          <Button variant='warning' type="submit">
+          <Button variant="dark" type="submit">
             Salvar
           </Button>
         </Modal.Footer>

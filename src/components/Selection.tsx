@@ -30,8 +30,8 @@ export default function Selection({ month, year, category, categories = [], onCh
 
         <FloatingLabel className="flex-fill" label="Categoria">
           <Form.Select className="rounded-end-0" onChange={(e) => onChangeCategory(e.target.value)} value={category || ""}>
-            <option value="">TOTAL</option>
-            <option value="" disabled>-----</option>
+            <option value="">TODAS</option>
+            <option disabled>-----</option>
             {categories.map((category, index) => (
               <option key={index} value={category}>
                 {category}

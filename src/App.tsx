@@ -3,9 +3,8 @@ import type { Input } from "./assets/types";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
-import ModalAdd from "./components/ModalAdd";
 import ModalConfirm from "./components/ModalConfirm";
-import ModalEdit from "./components/ModalEdit";
+import ModalInput from "./components/ModalInput";
 import Selection from "./components/Selection";
 
 const data = [
@@ -51,19 +50,10 @@ export default function App() {
           onAdd={() => setModal(true)}
         />
 
-        <ModalAdd
+        <ModalInput
           show={modal === true}
           categories={categories}
           onHide={() => setModal(false)}
-          onSave={(input) => (console.log(input), null)}
-        />
-
-        <ModalEdit
-          edit={Array.isArray(modal) ? modal : null}
-          categories={categories}
-          onHide={() => setModal(false)}
-          onCopy={(input) => console.log(input)}
-          onDelete={(index) => console.log(index)}
           onSave={(input) => (console.log(input), null)}
         />
 
