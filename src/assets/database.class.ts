@@ -10,6 +10,23 @@ export type Input = {
   done: boolean;
 }
 
+export type UpdateMode = 'ALL' | 'ONE' | 'BACKWARD' | 'FORWARD'
+
+export type UpdateInput = {
+  id: string;
+  day?: number;
+  category?: number;
+  description?: string;
+  value?: number;
+  mode?: UpdateMode;
+  done?: boolean;
+}
+
+export type DeleteInput = {
+  id: string;
+  mode?: UpdateMode;
+}
+
 export type Month = Input[];
 
 export type ErrorString = string;
@@ -79,6 +96,14 @@ export class Database {
 
     return null;
 
+  }
+
+  async updateInput(month: number, year: number, input: UpdateInput): Promise<null | ErrorString> {
+    throw new Error('Not implemented');
+  }
+
+  async deleteInput(month: number, year: number, input: DeleteInput): Promise<null | ErrorString> {
+    throw new Error('Not implemented');
   }
 
 }
