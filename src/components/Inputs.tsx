@@ -8,7 +8,7 @@ export type InputProps = {
 }
 
 function tdClass(value: number, className?: string): string {
-  return "" + (value < 0 ? "text-danger" : "text-primary") + (className ? " " + className : "");
+  return (value < 0 ? "text-danger" : (value > 0 ? "text-secondary" : "text-primary")) + (className ? " " + className : "");
 }
 
 export default function Inputs({ data, onEdit = () => { } }: InputProps) {
