@@ -74,6 +74,7 @@ export class Database {
     for (let c = current; c <= total; c++) {
       await this.instance.setItem<Month>(`${month}-${year}`, [...(await this.getMonth(month, year)), input]);
       month >= 11 ? (month = 0, year++) : month++;
+      input.installment = `${c + 1}-${total}`;
     }
 
     return null;
