@@ -18,8 +18,6 @@ export type UpdateMode = 'ALL' | 'ONE' | 'BACKWARD' | 'FORWARD'
 
 export type Month = Input[];
 
-export type ErrorString = string;
-
 export class Database {
 
   private instance: LocalForage;
@@ -54,7 +52,7 @@ export class Database {
     }, {} as Record<string, number>);
   }
 
-  async setInput(month: number, year: number, input: Input): Promise<null | ErrorString> {
+  async setInput(month: number, year: number, input: Input): Promise<void> {
 
     const [current, total] = input.installment.split('-').map(Number);
 
@@ -63,17 +61,18 @@ export class Database {
       current > total ||
       current < 1 ||
       total > 99
-    ) return 'Recorrência Inválida';
+    ) throw new Error('Recorrência Inválida');
+
+    if(input.day < 1) throw new Error('Dia Inválido');
 
     switch (month) {
       case 0: case 2: case 4: case 6: case 7: case 9: case 11:
-        if (input.day > 31) return 'Dia Inválido';
-        break;
+        if (input.day > 31) throw new Error('Dia Inválido');
       case 3: case 5: case 8: case 10:
-        if (input.day > 30) return 'Dia Inválido';
+        if (input.day > 30) throw new Error('Dia Inválido');
         break;
       case 1:
-        if (input.day > 29) return 'Dia Inválido';
+        if (input.day > 29) throw new Error('Dia Inválido');
         break;
     }
 
@@ -83,15 +82,13 @@ export class Database {
       input.installment = `${c + 1}-${total}`;
     }
 
-    return null;
-
   }
 
-  async updateInput(month: number, year: number, id: string, mode: UpdateMode, input: Partial<Input>): Promise<null | ErrorString> {
+  async updateInput(month: number, year: number, id: string, mode: UpdateMode, input: Partial<Input>): Promise<void> {
     throw new Error('Not implemented');
   }
 
-  async deleteInput(month: number, year: number, id: string, mode: UpdateMode): Promise<null | ErrorString> {
+  async deleteInput(month: number, year: number, id: string, mode: UpdateMode): Promise<void> {
     throw new Error('Not implemented');
   }
 
