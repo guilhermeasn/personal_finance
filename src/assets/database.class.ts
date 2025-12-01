@@ -30,8 +30,22 @@ export class Database {
     await this.instance.setItem('categories', categories);
   }
 
-  async getMonth(month: number, year: number): Promise<Month> {
-    return (await this.instance.getItem<Month>(`${month}-${year}`))?.sort((a, b) => a.day - b.day) ?? [];
+  async getMonth(month: number, year: number, category?: number): Promise<Month> {
+    const data = (await this.instance.getItem<Month>(`${month}-${year}`)) ?? [];
+    return (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
+  }
+
+  async getMonthTotal(month: number, year: number, category?: number): Promise<number> {
+    return (await this.getMonth(month, year, category)).reduce((total, input) => total + input.value, 0);
+  }
+
+  async getMonthTotalByCategory(month: number, year: number): Promise<Record<string, number>> {
+    const data = await this.getMonth(month, year);
+    const categories = await this.getCategories();
+    return data.reduce((total, input) => {
+      total[categories?.[input.category] ?? 'Sem Categoria'] = (total[categories?.[input.category] ?? 'Sem Categoria'] || 0) + input.value;
+      return total;
+    }, {} as Record<string, number>);
   }
 
   async setInput(month: number, year: number, input: Input): Promise<null | ErrorString> {
