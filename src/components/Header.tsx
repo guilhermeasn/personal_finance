@@ -1,10 +1,10 @@
 import { Container, Navbar } from "react-bootstrap";
 
-export type HeaderProps = {
-  onChangeDataBase: () => void;
-}
+// export type HeaderProps = {
+//   onChangeDataBase: () => void;
+// }
 
-export default function Header({ onChangeDataBase }: HeaderProps) {
+export default function Header() {
   return (
     <Navbar bg="dark" data-bs-theme="dark" as='header'>
       <Container>
