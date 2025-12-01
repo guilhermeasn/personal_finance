@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { Input } from "./assets/database.class";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
@@ -12,9 +13,6 @@ export default function App() {
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
   const [category, setCategory] = useState<string>();
-
-  const [categories, setCategories] = useCategories();
-  const [data, setData] = useMonth(month, year);
 
   const [modal, setModal] = useState<boolean | [number, Input]>(false);
   const [confirm, setConfirm] = useState<string | null | [string, () => void]>(null);
@@ -35,12 +33,12 @@ export default function App() {
           onChangeMonth={setMonth}
           onChangeYear={setYear}
           onChangeCategory={setCategory}
-          categories={categories}
+        // categories={categories}
         />
 
         <Inputs
-          data={data}
-          onEdit={i => setModal([i, data[i]])}
+        // data={data}
+        // onEdit={i => setModal([i, data[i]])}
         />
 
         <Buttons
@@ -50,7 +48,7 @@ export default function App() {
 
         <ModalInput
           show={modal === true}
-          categories={categories}
+          // categories={categories}
           onHide={() => setModal(false)}
           onSave={(input) => (console.log(input), null)}
         />
@@ -58,8 +56,8 @@ export default function App() {
         <ModalCategories
           show={showCategoriesModal}
           onHide={() => setShowCategoriesModal(false)}
-          categories={categories}
-          onSave={setCategories}
+          categories={[]}
+          onSave={() => { }}
         />
 
         <ModalConfirm
