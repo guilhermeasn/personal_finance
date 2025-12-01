@@ -6,15 +6,13 @@ import Inputs from "./components/Inputs";
 import ModalCategories from "./components/ModalCategories";
 import ModalConfirm from "./components/ModalConfirm";
 import ModalInput from "./components/ModalInput";
-import Selection from "./components/Selection";
+import Selection, { type SelectionState } from "./components/Selection";
 
 const db = new Database('personal_finance');
 
 export default function App() {
 
-  const [month, setMonth] = useState<number>();
-  const [year, setYear] = useState<number>();
-  const [category, setCategory] = useState<string>();
+  const [selection, setSelection] = useState<SelectionState>({});
 
   const [inputModal, setInputModal] = useState<boolean | [number, Input]>(false);
   const [confirmModal, setConfirmModal] = useState<string | null | [string, () => void]>(null);
@@ -29,13 +27,9 @@ export default function App() {
       <main>
 
         <Selection
-          month={month}
-          year={year}
-          category={category}
-          onChangeMonth={setMonth}
-          onChangeYear={setYear}
-          onChangeCategory={setCategory}
-        // categories={categories}
+          state={selection}
+          onChange={setSelection}
+          categories={[]}
         />
 
         <Inputs

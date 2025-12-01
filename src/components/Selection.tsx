@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button, Container, FloatingLabel, Form } from "react-bootstrap";
 import { MdAutorenew } from "react-icons/md";
 
@@ -8,19 +9,22 @@ const months = [
   "Outubro", "Novembro", "Dezembro"
 ];
 
-export type SelectionProps = {
+export type SelectionState = {
   month?: number;
   year?: number;
   category?: string;
-  categories?: string[];
-  onChangeMonth?: (month: number) => void;
-  onChangeYear?: (year: number) => void;
-  onChangeCategory?: (category: string) => void;
 }
 
-export default function Selection({ month, year, category, categories = [], onChangeMonth = () => { }, onChangeYear = () => { }, onChangeCategory = () => { } }: SelectionProps) {
+export type SelectionProps = {
+  categories?: string[];
+  state: SelectionState;
+  onChange?: (state: SelectionState) => void;
+}
+
+export default function Selection({ state, categories = [], onChange = () => { } }: SelectionProps) {
 
   const current: [number, number] = [new Date().getMonth(), new Date().getFullYear()];
+  useEffect(() => onChange({ month: current[0], year: current[1], category: "" }), []);
 
   return (
 
@@ -29,7 +33,7 @@ export default function Selection({ month, year, category, categories = [], onCh
       <div className="d-flex justify-content-between my-3">
 
         <FloatingLabel className="flex-fill" label="Categoria">
-          <Form.Select className="rounded-end-0" onChange={(e) => onChangeCategory(e.target.value)} value={category || ""}>
+          <Form.Select className="rounded-end-0" onChange={(e) => onChange({ category: e.target.value })} value={state.category || ""}>
             <option value="">TODAS</option>
             <option disabled>-----</option>
             {categories.map((category, index) => (
@@ -41,7 +45,7 @@ export default function Selection({ month, year, category, categories = [], onCh
         </FloatingLabel>
 
         <FloatingLabel className="flex-fill" label="Mês">
-          <Form.Select className="rounded-0" onChange={(e) => onChangeMonth(Number(e.target.value))} value={month || current[0]}>
+          <Form.Select className="rounded-0" onChange={(e) => onChange({ month: Number(e.target.value) })} value={state.month || current[0]}>
             {months.map((month, index) => (
               <option key={index} value={index}>
                 {month}
@@ -51,8 +55,8 @@ export default function Selection({ month, year, category, categories = [], onCh
         </FloatingLabel>
 
         <FloatingLabel label="Ano">
-          <Form.Select className="rounded-start-0" onChange={(e) => onChangeYear(Number(e.target.value))} value={year || current[1]}>
-            {Array.from({ length: 21 }, (_, index) => index + ((year || current[1]) - 10)).map((year, index) => (
+          <Form.Select className="rounded-start-0" onChange={(e) => onChange({ year: Number(e.target.value) })} value={state.year || current[1]}>
+            {Array.from({ length: 21 }, (_, index) => index + ((state.year || current[1]) - 10)).map((year, index) => (
               <option key={index} value={year}>
                 {year}
               </option>
@@ -62,9 +66,7 @@ export default function Selection({ month, year, category, categories = [], onCh
 
         <div className="d-flex align-items-center text-center mx-2">
           <Button className="text-warning-emphasis" variant="link" size="sm" onClick={() => {
-            onChangeMonth(current[0]);
-            onChangeYear(current[1]);
-            onChangeCategory("");
+            onChange({ month: current[0], year: current[1], category: "" });
           }}>
             <MdAutorenew size={32} />
           </Button>
