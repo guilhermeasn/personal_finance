@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useCategories, useMonth } from "./assets/data";
-import type { Input } from "./assets/types";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";

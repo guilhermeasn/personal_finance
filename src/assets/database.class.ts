@@ -1,0 +1,69 @@
+import localforage from "localforage";
+
+export type Input = {
+  id: string;
+  day: number;
+  category: number;
+  description: string;
+  value: number;
+  installment: `${number}-${number}`;
+  done: boolean;
+}
+
+export type Month = Input[];
+
+export type ErrorString = string;
+
+export class Database {
+
+  private instance: LocalForage;
+
+  constructor(dbName: string) {
+    this.instance = localforage.createInstance({ name: dbName });
+  }
+
+  async getCategories(): Promise<string[]> {
+    return (await this.instance.getItem<string[]>('categories')) ?? [];
+  }
+
+  async setCategories(categories: string[]): Promise<void> {
+    await this.instance.setItem('categories', categories);
+  }
+
+  async getMonth(month: number, year: number): Promise<Month> {
+    return (await this.instance.getItem<Month>(`${month}-${year}`))?.sort((a, b) => a.day - b.day) ?? [];
+  }
+
+  async setInput(month: number, year: number, input: Input): Promise<null | ErrorString> {
+
+    const [current, total] = input.installment.split('-').map(Number);
+
+    if (
+      !current || !total ||
+      current > total ||
+      current < 1 ||
+      total > 99
+    ) return 'Recorrência Inválida';
+
+    switch (month) {
+      case 0: case 2: case 4: case 6: case 7: case 9: case 11:
+        if (input.day > 31) return 'Dia Inválido';
+        break;
+      case 3: case 5: case 8: case 10:
+        if (input.day > 30) return 'Dia Inválido';
+        break;
+      case 1:
+        if (input.day > 29) return 'Dia Inválido';
+        break;
+    }
+
+    for (let c = current; c <= total; c++) {
+      await this.instance.setItem<Month>(`${month}-${year}`, [...(await this.getMonth(month, year)), input]);
+      month >= 11 ? (month = 0, year++) : month++;
+    }
+
+    return null;
+
+  }
+
+}
