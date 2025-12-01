@@ -10,6 +10,10 @@ export type Input = {
   done: boolean;
 }
 
+export type CreateInput = Omit<Input, 'id'>;
+
+export type UpdateInput = Partial<Omit<Input,'id' | 'installment'>>;
+
 export type UpdateMode = 'ALL' | 'ONE' | 'BACKWARD' | 'FORWARD'
 
 export type Month = Input[];
