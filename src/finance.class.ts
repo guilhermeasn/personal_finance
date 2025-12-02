@@ -29,9 +29,11 @@ export class Finance {
   static getMonths(month: MonthIndex, year: number, step: Step = [1, 1]): Array<{ month: MonthIndex, year: number }> {
 
     const [current, total] = step;
+    let m = month;
+    let y = year;
 
-    if (month < 0 || month > 11) throw new Error('Mês Inválido');
-    if (year < 0 || year > 9999) throw new Error('Ano Inválido');
+    if (m < 0 || m > 11) throw new Error('Mês Inválido');
+    if (y < 0 || y > 9999) throw new Error('Ano Inválido');
 
     if (
       !current || !total ||
@@ -43,12 +45,12 @@ export class Finance {
     const months: Array<{ month: MonthIndex, year: number }> = [];
 
     for (let c = current; c > 1; c--) {
-      month <= 0 ? (month = 11, year--) : month--;
+      m <= 0 ? (m = 11, y--) : m--;
     }
 
     for (let c = 1; c <= total; c++) {
-      months.push({ month, year });
-      month >= 11 ? (month = 0, year++) : month++;
+      months.push({ month: m, year: y });
+      m >= 11 ? (m = 0, y++) : m++;
     }
 
     return months;
