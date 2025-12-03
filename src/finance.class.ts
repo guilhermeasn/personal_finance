@@ -14,7 +14,7 @@ import type {
 export class Finance {
 
   static formatMonth(month: MonthIndex, year: number): string {
-    return `Y${year}M${month}`;
+    return `${year}Y${month}M`;
   }
 
   static getMonths(month: MonthIndex, year: number, step: Step = [1, 1]): StepMoment[] {
