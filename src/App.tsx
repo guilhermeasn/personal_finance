@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Database, type Input } from "./assets/database.class";
+import { useEffect, useState } from "react";
+import { Database } from "./assets/database.class";
+import { Finance } from "./assets/finance.class";
+import type { Input } from "./assets/finance.type";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
@@ -8,11 +10,18 @@ import ModalConfirm from "./components/ModalConfirm";
 import ModalInput from "./components/ModalInput";
 import Selection, { type SelectionState } from "./components/Selection";
 
-const db = new Database('personal_finance');
+const finance = new Finance(
+  new Database('personal_finance')
+);
 
 export default function App() {
 
   const [selection, setSelection] = useState<SelectionState>({});
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    finance.getCategories().then(setCategories);
+  }, []);
 
   const [inputModal, setInputModal] = useState<boolean | [number, Input]>(false);
   const [confirmModal, setConfirmModal] = useState<string | null | [string, () => void]>(null);
@@ -29,7 +38,7 @@ export default function App() {
         <Selection
           state={selection}
           onChange={setSelection}
-          categories={[]}
+          categories={categories}
         />
 
         <Inputs
@@ -52,8 +61,8 @@ export default function App() {
         <ModalCategories
           show={categoriesModal}
           onHide={() => setCategoriesModal(false)}
-          categories={[]}
-          onSave={() => { }}
+          categories={categories}
+          onSave={async c => (await finance.setCategories(c), setCategories(c))}
         />
 
         <ModalConfirm
