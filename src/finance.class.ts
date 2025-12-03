@@ -13,6 +13,10 @@ import type {
 
 export class Finance {
 
+  static formatMonth(month: MonthIndex, year: number): string {
+    return `${year}-${month}`;
+  }
+
   static getMonths(month: MonthIndex, year: number, step: Step = [1, 1]): StepMoment[] {
 
     const [current, total] = step;
@@ -58,7 +62,7 @@ export class Finance {
   }
 
   async getInputs(month: MonthIndex, year: number): Promise<Input[]> {
-    return await this.db.get<Input[]>(`${year}-${month}`) ?? []
+    return await this.db.get<Input[]>(Finance.formatMonth(month, year)) ?? []
   }
 
   async getMonth(month: MonthIndex, year: number, category?: number): Promise<MonthData> {
@@ -136,7 +140,7 @@ export class Finance {
     if (index === -1) inputs.push(input);
     else inputs[index] = input;
 
-    await this.db.set<Input[]>(`${year}-${month}`, inputs);
+    await this.db.set<Input[]>(Finance.formatMonth(month, year), inputs);
 
   }
 
