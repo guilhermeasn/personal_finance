@@ -57,8 +57,12 @@ export class Finance {
     await this.db.set<string[]>('categories', categories);
   }
 
+  async getInputs(month: MonthIndex, year: number): Promise<Input[]> {
+    return await this.db.get<Input[]>(`${year}-${month}`) ?? []
+  }
+
   async getMonth(month: MonthIndex, year: number, category?: number): Promise<MonthData> {
-    const data = (await this.db.get<Input[]>(`${year}-${month}`)) ?? [];
+    const data = await this.getInputs(month, year);
     const inputs = (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
     const total = inputs.reduce((total, input) => total + input.value, 0);
     return { inputs, total };
@@ -85,7 +89,7 @@ export class Finance {
 
   async updateInput(month: MonthIndex, year: number, id: string, mode: UpdateMode, update: UpdateInput): Promise<void> {
 
-    const { inputs } = await this.getMonth(month, year);
+    const inputs = await this.getInputs(month, year);
     const index = inputs.findIndex(input => input.id === id);
     if (index === -1) throw new Error('Entrada não encontrada');
 
@@ -102,7 +106,7 @@ export class Finance {
 
   async removeInput(month: MonthIndex, year: number, id: string, mode: UpdateMode): Promise<void> {
 
-    const { inputs } = await this.getMonth(month, year);
+    const inputs = await this.getInputs(month, year);
     const index = inputs.findIndex(input => input.id === id);
     if (index === -1) throw new Error('Entrada não encontrada');
 
@@ -112,7 +116,7 @@ export class Finance {
     loop: for (let m of months) {
       if (m.moment === '<' && (mode === 'ONE' || mode === 'FORWARD')) continue loop;
       if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
-      const { inputs } = await this.getMonth(m.month, m.year);
+      const inputs = await this.getInputs(m.month, m.year);
       const newInputs = inputs.filter(input => input.id !== id);
       await this.db.set<Input[]>(`${m.year}-${m.month}`, newInputs);
     }
@@ -126,7 +130,7 @@ export class Finance {
     if (input.day < 1) input = { ...input, day: 1 };
     if (input.day > lastDay) input = { ...input, day: lastDay };
 
-    const { inputs } = await this.getMonth(month, year);
+    const inputs = await this.getInputs(month, year);
     const index = inputs.findIndex(i => i.id === input.id);
 
     if (index === -1) inputs.push(input);
