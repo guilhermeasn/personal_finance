@@ -1,32 +1,19 @@
-export interface Database {
-  get: <T>(key: string) => Promise<T | null>;
-  set: <T>(key: string, value: T) => Promise<void>;
-}
-
-export type Step = [number, number];
-
-export type Input = {
-  id: string;
-  day: number;
-  category: number;
-  description: string;
-  value: number;
-  step: Step;
-  done: boolean;
-}
-
-export type CreateInput = Omit<Input, 'id'>;
-
-export type UpdateInput = Partial<Omit<Input, 'id' | 'installment'>>;
-
-export type UpdateMode = 'ALL' | 'ONE' | 'BACKWARD' | 'FORWARD'
-
-export type Month = Input[];
-export type MonthIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+import type {
+  CreateInput,
+  IDatabase,
+  Input,
+  Moment,
+  MonthData,
+  MonthIndex,
+  Step,
+  StepMoment,
+  UpdateInput,
+  UpdateMode
+} from "./finance.type";
 
 export class Finance {
 
-  static getMonths(month: MonthIndex, year: number, step: Step = [1, 1]): Array<{ month: MonthIndex, year: number }> {
+  static getMonths(month: MonthIndex, year: number, step: Step = [1, 1]): StepMoment[] {
 
     const [current, total] = step;
     let m = month;
@@ -42,14 +29,15 @@ export class Finance {
       total > 99
     ) throw new Error('Recorrência Inválida');
 
-    const months: Array<{ month: MonthIndex, year: number }> = [];
+    const months: StepMoment[] = [];
 
     for (let c = current; c > 1; c--) {
       m <= 0 ? (m = 11, y--) : m--;
     }
 
     for (let c = 1; c <= total; c++) {
-      months.push({ month: m, year: y });
+      const moment: Moment = c < current ? '<' : c > current ? '>' : '=';
+      months.push({ month: m, year: y, moment, step: [c, total] });
       m >= 11 ? (m = 0, y++) : m++;
     }
 
@@ -58,7 +46,7 @@ export class Finance {
   }
 
   constructor(
-    private db: Database
+    private db: IDatabase
   ) { }
 
   async getCategories(): Promise<string[]> {
@@ -66,118 +54,86 @@ export class Finance {
   }
 
   async setCategories(categories: string[]): Promise<void> {
-    await this.db.set('categories', categories);
+    await this.db.set<string[]>('categories', categories);
   }
 
-  async getMonth(month: number, year: number, category?: number): Promise<Month> {
-    const data = (await this.db.get<Month>(`${month}-${year}`)) ?? [];
-    return (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
+  async getMonth(month: MonthIndex, year: number, category?: number): Promise<MonthData> {
+    const data = (await this.db.get<Input[]>(`${month}-${year}`)) ?? [];
+    const inputs = (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
+    const total = inputs.reduce((total, input) => total + input.value, 0);
+    return { inputs, total };
   }
 
-  async getMonthTotal(month: number, year: number, category?: number): Promise<number> {
-    return (await this.getMonth(month, year, category)).reduce((total, input) => total + input.value, 0);
+  async getMonthByCategory(month: MonthIndex, year: number): Promise<Record<number | 'total', number>> {
+    const { inputs, total } = await this.getMonth(month, year);
+    return {
+      ...inputs.reduce((total, input) => {
+        total[input.category] = (total?.[input.category] || 0) + input.value;
+        return total;
+      }, {} as Record<number | 'total', number>), total
+    };
   }
 
-  async getMonthTotalByCategory(month: number, year: number): Promise<Record<string, number>> {
-    const data = await this.getMonth(month, year);
-    const categories = await this.getCategories();
-    return data.reduce((total, input) => {
-      total[categories?.[input.category] ?? 'Sem Categoria'] = (total[categories?.[input.category] ?? 'Sem Categoria'] || 0) + input.value;
-      return total;
-    }, {} as Record<string, number>);
-  }
-
-  async setInput(month: number, year: number, input: CreateInput): Promise<void> {
-
-    const [current, total] = input.step;
-
+  async setInput(month: MonthIndex, year: number, newInput: CreateInput): Promise<void> {
     const id = crypto.randomUUID();
+    const months = Finance.getMonths(month, year, newInput.step);
+    const { inputs } = await this.getMonth(month, year);
+    for (let m of months) {
+      const input: Input = { id, ...newInput, step: m.step };
+      await this.insertInput(m.month, m.year, inputs, input);
+    }
+  }
 
-    for (let c = current; c <= total; c++) {
-      await this.insertInput(month, year, { ...input, id, step: [c, total] });
-      // [month, year] = this.nextMonth(month, year);
+  async updateInput(month: MonthIndex, year: number, id: string, mode: UpdateMode, update: UpdateInput): Promise<void> {
+
+    const { inputs } = await this.getMonth(month, year);
+    const index = inputs.findIndex(input => input.id === id);
+    if (index === -1) throw new Error('Entrada não encontrada');
+
+    const input = inputs[index];
+    const months = Finance.getMonths(month, year, input.step);
+
+    loop: for (let m of months) {
+      if (m.moment === '<' && (mode === 'ONE' || mode === 'FORWARD')) continue loop;
+      if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
+      await this.insertInput(m.month, m.year, inputs, { ...input, ...update })
     }
 
   }
 
-  // async updateInput(month: number, year: number, id: string, mode: UpdateMode, update: UpdateInput): Promise<void> {
+  async removeInput(month: MonthIndex, year: number, id: string, mode: UpdateMode): Promise<void> {
 
-  //   const data = await this.getMonth(month, year);
-  //   const index = data.findIndex(input => input.id === id);
-  //   if (index === -1) return;
+    const { inputs } = await this.getMonth(month, year);
+    const index = inputs.findIndex(input => input.id === id);
+    if (index === -1) throw new Error('Entrada não encontrada');
 
-  //   const input = data[index];
-  //   const [current, total] = input.installment.split('-').map(Number);
+    const input = inputs[index];
+    const months = Finance.getMonths(month, year, input.step);
 
-  //   switch (mode) {
-  //     case 'BACKWARD':
-  //       for (let c = 0; c < current; c++) {
-  //         await this.updateInput(month, year, id, 'ONE', update);
-  //         [month, year] = this.prevMonth(month, year);
-  //       }
-  //       break;
-  //     case 'FORWARD':
-  //       for (let c = current; c <= total; c++) {
-  //         await this.updateInput(month, year, id, 'ONE', update);
-  //         [month, year] = this.nextMonth(month, year);
-  //       }
-  //       break;
-  //     case 'ALL':
-  //       let monthforward = month;
-  //       let monthbackward = month;
-  //       let yearforward = year;
-  //       let yearbackward = year;
-  //       for (let c = 0; c < current; c++) {
-  //         await this.updateInput(monthbackward, yearbackward, id, 'ONE', update);
-  //         [monthbackward, yearbackward] = this.prevMonth(monthbackward, yearbackward);
-  //       }
-  //       for (let c = current; c <= total; c++) {
-  //         [monthforward, yearforward] = this.nextMonth(monthforward, yearforward);
-  //         await this.updateInput(monthforward, yearforward, id, 'ONE', update);
-  //       }
-  //       break;
-  //     case 'ONE':
-  //     default:
-  //       await this.insertInput(month, year, { ...input, ...update });
-  //       break;
-  //   }
+    loop: for (let m of months) {
+      if (m.moment === '<' && (mode === 'ONE' || mode === 'FORWARD')) continue loop;
+      if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
+      const { inputs } = await this.getMonth(m.month, m.year);
+      const newInputs = inputs.filter(input => input.id === id);
+      await this.db.set<Input[]>(`${m.month}-${m.year}`, newInputs);
+    }
 
-  // }
-
-  // async deleteInput(month: number, year: number, id: string, mode: UpdateMode): Promise<void> {
-
-  //   const data = await this.getMonth(month, year);
-  //   const index = data.findIndex(input => input.id === id);
-  //   if (index === -1) throw new Error('Entrada não encontrada');
-
-  // }
-
-  private lastDay(month: number, year: number): number {
-    return new Date(year, month + 1, 0).getDate();
   }
 
-  private async insertInput(month: number, year: number, input: Input): Promise<void> {
+  private async insertInput(month: MonthIndex, year: number, inputs: Input[], input: Input): Promise<void> {
 
+    const lastDay: number = new Date(year, month + 1, 0).getDate();
 
     if (input.day < 1) input = { ...input, day: 1 };
-    if (input.day > this.lastDay(month, year)) input = { ...input, day: this.lastDay(month, year) };
+    if (input.day > lastDay) input = { ...input, day: lastDay };
 
-    const data = await this.getMonth(month, year);
-    const index = data.findIndex(i => i.id === input.id);
+    const index = inputs.findIndex(i => i.id === input.id);
 
-    if (index === -1) data.push(input);
-    else data[index] = input;
+    if (index === -1) inputs.push(input);
+    else inputs[index] = input;
 
-    await this.db.set(`${month}-${year}`, data);
+    await this.db.set<Input[]>(`${month}-${year}`, inputs);
 
   }
-
-  // private nextMonth(month: number, year: number): [number, number] {
-  //   return month >= 11 ? [0, year + 1] : [month + 1, year];
-  // }
-
-  // private prevMonth(month: number, year: number): [number, number] {
-  //   return month <= 0 ? [11, year - 1] : [month - 1, year];
-  // }
 
 }
