@@ -5,7 +5,7 @@ export class Database {
 
   async get<T>(key: string): Promise<T | null> {
     try {
-      return JSON.stringify((await readFile(this.fileName(key))).toString()) as T;
+      return JSON.parse((await readFile(this.fileName(key))).toString()) as T;
     } catch (err) {
       return null;
     }

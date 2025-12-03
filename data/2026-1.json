@@ -1,0 +1,14 @@
+[
+  {
+    "id": "ee4e0d1d-38d3-4c0c-b000-837242333c6d",
+    "day": 2,
+    "category": 0,
+    "description": "Salário",
+    "value": 32000,
+    "done": true,
+    "step": [
+      5,
+      12
+    ]
+  }
+]

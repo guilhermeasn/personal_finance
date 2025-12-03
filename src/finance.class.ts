@@ -58,7 +58,7 @@ export class Finance {
   }
 
   async getMonth(month: MonthIndex, year: number, category?: number): Promise<MonthData> {
-    const data = (await this.db.get<Input[]>(`${month}-${year}`)) ?? [];
+    const data = (await this.db.get<Input[]>(`${year}-${month}`)) ?? [];
     const inputs = (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
     const total = inputs.reduce((total, input) => total + input.value, 0);
     return { inputs, total };
@@ -77,10 +77,9 @@ export class Finance {
   async setInput(month: MonthIndex, year: number, newInput: CreateInput): Promise<void> {
     const id = crypto.randomUUID();
     const months = Finance.getMonths(month, year, newInput.step);
-    const { inputs } = await this.getMonth(month, year);
     for (let m of months) {
       const input: Input = { id, ...newInput, step: m.step };
-      await this.insertInput(m.month, m.year, inputs, input);
+      await this.insertInput(m.month, m.year, input);
     }
   }
 
@@ -96,7 +95,7 @@ export class Finance {
     loop: for (let m of months) {
       if (m.moment === '<' && (mode === 'ONE' || mode === 'FORWARD')) continue loop;
       if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
-      await this.insertInput(m.month, m.year, inputs, { ...input, ...update })
+      await this.insertInput(m.month, m.year, { ...input, ...update })
     }
 
   }
@@ -114,25 +113,26 @@ export class Finance {
       if (m.moment === '<' && (mode === 'ONE' || mode === 'FORWARD')) continue loop;
       if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
       const { inputs } = await this.getMonth(m.month, m.year);
-      const newInputs = inputs.filter(input => input.id === id);
-      await this.db.set<Input[]>(`${m.month}-${m.year}`, newInputs);
+      const newInputs = inputs.filter(input => input.id !== id);
+      await this.db.set<Input[]>(`${m.year}-${m.month}`, newInputs);
     }
 
   }
 
-  private async insertInput(month: MonthIndex, year: number, inputs: Input[], input: Input): Promise<void> {
+  private async insertInput(month: MonthIndex, year: number, input: Input): Promise<void> {
 
     const lastDay: number = new Date(year, month + 1, 0).getDate();
 
     if (input.day < 1) input = { ...input, day: 1 };
     if (input.day > lastDay) input = { ...input, day: lastDay };
 
+    const { inputs } = await this.getMonth(month, year);
     const index = inputs.findIndex(i => i.id === input.id);
 
     if (index === -1) inputs.push(input);
     else inputs[index] = input;
 
-    await this.db.set<Input[]>(`${month}-${year}`, inputs);
+    await this.db.set<Input[]>(`${year}-${month}`, inputs);
 
   }
 
