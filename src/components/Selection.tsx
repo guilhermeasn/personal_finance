@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Button, Container, FloatingLabel, Form } from "react-bootstrap";
 import { MdAutorenew } from "react-icons/md";
-import type { MonthIndex } from "../assets/finance.type";
+import type { Category, MonthIndex } from "../assets/finance.type";
 
 const months = [
   "Janeiro", "Fevereiro", "Março",
@@ -17,7 +17,7 @@ export type SelectionState = {
 }
 
 export type SelectionProps = {
-  categories?: string[];
+  categories?: Category[];
   state: SelectionState;
   onChange?: (state: SelectionState) => void;
 }
@@ -39,8 +39,8 @@ export default function Selection({ state, categories = [], onChange = () => { }
             <option value="__group__">AGRUPADAS</option>
             <option disabled>-----</option>
             {categories.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
+              <option key={index} value={category.name}>
+                {category.name}
               </option>
             ))}
           </Form.Select>

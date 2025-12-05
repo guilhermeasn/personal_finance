@@ -1,4 +1,5 @@
 import type {
+  Category,
   CreateInput,
   IDatabase,
   Input,
@@ -12,6 +13,10 @@ import type {
 } from "./finance.type";
 
 export class Finance {
+
+  /**********************************/
+  /*         Métodos estáticos      */
+  /**********************************/
 
   static formatMonth(month: MonthIndex, year: number): string {
     return `${year}Y${month}M`;
@@ -49,38 +54,47 @@ export class Finance {
 
   }
 
+  /**********************************/
+  /*            Atributos           */
+  /**********************************/
+
   private db: IDatabase;
+
+  /**********************************/
+  /*          Métodos públicos      */
+  /**********************************/
 
   constructor(db: IDatabase) {
     this.db = db;
   }
 
-  async getCategories(): Promise<string[]> {
-    return (await this.db.get<string[]>('categories')) ?? [];
+  async getCategories(): Promise<Category[]> {
+    const c = (await this.db.get<Category[]>('categories')) ?? [];
+    return c.sort((a, b) => a.position - b.position);
   }
 
-  async setCategories(categories: string[]): Promise<void> {
-    await this.db.set<string[]>('categories', categories);
+  async setCategories(categories: Category[]): Promise<void> {
+    await this.db.set<Category[]>('categories', categories);
   }
 
   async getInputs(month: MonthIndex, year: number): Promise<Input[]> {
     return await this.db.get<Input[]>(Finance.formatMonth(month, year)) ?? []
   }
 
-  async getMonth(month: MonthIndex, year: number, category?: number): Promise<MonthData> {
+  async getMonth(month: MonthIndex, year: number, category?: string): Promise<MonthData> {
     const data = await this.getInputs(month, year);
     const inputs = (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
     const total = inputs.reduce((total, input) => total + input.value, 0);
     return { inputs, total };
   }
 
-  async getMonthByCategory(month: MonthIndex, year: number): Promise<Record<number | 'total', number>> {
+  async getMonthByCategory(month: MonthIndex, year: number): Promise<Record<string | '__total__', number>> {
     const { inputs, total } = await this.getMonth(month, year);
     return {
       ...inputs.reduce((total, input) => {
         total[input.category] = (total?.[input.category] || 0) + input.value;
         return total;
-      }, {} as Record<number | 'total', number>), total
+      }, {} as Record<string | '__total__', number>), '__total__': total
     };
   }
 
@@ -128,6 +142,10 @@ export class Finance {
     }
 
   }
+
+  /**********************************/
+  /*          Métodos privados      */
+  /**********************************/
 
   private async insertInput(month: MonthIndex, year: number, input: Input): Promise<void> {
 

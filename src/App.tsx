@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Database } from "./assets/database.class";
 import { Finance } from "./assets/finance.class";
-import type { Input, MonthData } from "./assets/finance.type";
+import type { Category, Input, MonthData } from "./assets/finance.type";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
@@ -20,7 +20,7 @@ export default function App() {
   const [selection, setSelection] = useState<SelectionState>({});
   useEffect(() => (selection.month && selection.year && finance.getMonth(selection.month, selection.year).then(setData), void (0)), [selection]);
 
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   useEffect(() => (finance.getCategories().then(setCategories), void (0)), []);
 
   const [inputModal, setInputModal] = useState<boolean | Input>(false);
