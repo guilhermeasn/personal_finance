@@ -1,4 +1,5 @@
 import type {
+  Categories,
   CreateInput,
   IDatabase,
   Input,
@@ -49,16 +50,21 @@ export class Finance {
 
   }
 
-  constructor(
-    private db: IDatabase
-  ) { }
+  private db: IDatabase;
 
-  async getCategories(): Promise<string[]> {
-    return (await this.db.get<string[]>('categories')) ?? [];
+  constructor(db: IDatabase) {
+    this.db = db;
   }
 
-  async setCategories(categories: string[]): Promise<void> {
-    await this.db.set<string[]>('categories', categories);
+  async getCategories(array?: false): Promise<Categories>;
+  async getCategories(array: true): Promise<string[]>;
+  async getCategories(array?: boolean): Promise<Categories | string[]> {
+    const c = (await this.db.get<Categories>('categories')) ?? {};
+    return array ? Object.keys(c).sort((a, b) => c[a] - c[b]) : c;
+  }
+
+  async setCategories(categories: Categories): Promise<void> {
+    await this.db.set<Categories>('categories', categories);
   }
 
   async getInputs(month: MonthIndex, year: number): Promise<Input[]> {

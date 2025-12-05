@@ -1,5 +1,5 @@
-[
-  "Recebimentos",
-  "Cartão de Crédito",
-  "Despesas Fixas"
-]
+{
+  "Recebimentos": 2,
+  "Cartão de Crédito": 1,
+  "Despesas Fixas": 3
+}

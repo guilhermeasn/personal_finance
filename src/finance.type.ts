@@ -3,6 +3,8 @@ export interface IDatabase {
   set: <T>(key: string, value: T) => Promise<void>;
 }
 
+export type Categories = Record<string, number>;
+
 export type Input = {
   id: string;
   day: number;

@@ -8,13 +8,14 @@ import { Finance } from "./finance.class";
   const db = new Database();
   const fn = new Finance(db);
 
-  await fn.setCategories([
-    'Recebimentos',
-    'Cartão de Crédito',
-    'Despesas Fixas'
-  ]);
+  await fn.setCategories({
+    'Recebimentos': 2,
+    'Cartão de Crédito': 1,
+    'Despesas Fixas': 3
+  });
 
   console.log(await fn.getCategories());
+  console.log(await fn.getCategories(true));
 
   // await fn.setInput(11, 2025, {
   //   day: 2,
