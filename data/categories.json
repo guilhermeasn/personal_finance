@@ -1,5 +1,17 @@
-{
-  "Recebimentos": 2,
-  "Cartão de Crédito": 1,
-  "Despesas Fixas": 3
-}
+[
+  {
+    "id": "a",
+    "position": 2,
+    "name": "Recebimentos"
+  },
+  {
+    "id": "b",
+    "position": 1,
+    "name": "Cartão de Crédito"
+  },
+  {
+    "id": "c",
+    "position": 3,
+    "name": "Despesas Fixas"
+  }
+]
