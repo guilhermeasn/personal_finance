@@ -54,6 +54,10 @@ export class Finance {
 
   }
 
+  static lastDay(month: MonthIndex, year: number): number {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
   /**********************************/
   /*            Atributos           */
   /**********************************/
@@ -149,7 +153,7 @@ export class Finance {
 
   private async insertInput(month: MonthIndex, year: number, input: Input): Promise<void> {
 
-    const lastDay: number = new Date(year, month + 1, 0).getDate();
+    const lastDay: number = Finance.lastDay(month, year);
 
     if (input.day < 1) input = { ...input, day: 1 };
     if (input.day > lastDay) input = { ...input, day: lastDay };

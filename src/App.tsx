@@ -53,7 +53,7 @@ export default function App() {
 
         <ModalInput
           show={inputModal === true}
-          // categories={categories}
+          categories={categories}
           onHide={() => setInputModal(false)}
           onSave={(input) => (console.log(input), null)}
         />

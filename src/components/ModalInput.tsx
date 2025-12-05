@@ -2,23 +2,23 @@ import { getPresetMask, useMask } from "mask-hooks";
 import { useEffect, useState } from "react";
 import { Alert, Button, FloatingLabel, Form, Modal } from "react-bootstrap";
 import { MdError } from "react-icons/md";
-import type { Input } from "../assets/types";
+import type { Category, Input } from "../assets/finance.type";
 
 export type ModalInputProps = {
   show: boolean;
-  categories?: string[];
+  categories?: Category[];
   onHide: () => void;
   onSave: (input: Input) => string | null;
 }
 
-export default function ModalInput({ show, categories = [], onHide, onSave }: ModalInputProps) {
+export default function ModalInput({ show, categories = [], onHide }: ModalInputProps) {
 
   const dayMask = useMask({ masks: '[1-31]' });
   const valueMask = useMask(getPresetMask('CURRENCY_PTBR'));
   const reccurenceMask = useMask({ masks: '###' });
 
   const dataDefault = {
-    day: dayMask(new Date().getDate()), category: '', description: "",
+    day: new Date().getDate().toString(), category: '', description: "",
     value: valueMask('0'), reccurence: reccurenceMask('1'), done: true
   }
 
@@ -66,8 +66,8 @@ export default function ModalInput({ show, categories = [], onHide, onSave }: Mo
                 </option>
               ) : (
                 categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
+                  <option key={index} value={category.id}>
+                    {category.name}
                   </option>
                 ))
               )}
