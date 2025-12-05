@@ -1,19 +1,17 @@
 import { Container, Table } from "react-bootstrap";
 import { MdOutlineCheckCircle } from "react-icons/md";
-import type { Month } from "../assets/types";
+import type { Input, MonthData } from "../assets/finance.type";
 
 export type InputProps = {
-  data?: Month;
-  onEdit?: (index: number) => void;
+  data?: MonthData | null;
+  onEdit?: (input: Input) => void;
 }
 
 function tdClass(value: number, className?: string): string {
   return 'text-' + (value < 0 ? "danger" : (value > 0 ? "primary" : "secondary")) + (className ? " " + className : "");
 }
 
-export default function Inputs({ data, onEdit = () => { } }: InputProps) {
-
-  const total: number | null = data ? data.reduce((total, input) => total + input.value, 0) : null;
+export default function Inputs({ data = null, onEdit = () => { } }: InputProps) {
 
   return (
     <Container>
@@ -22,9 +20,9 @@ export default function Inputs({ data, onEdit = () => { } }: InputProps) {
 
           <tbody>
 
-            {data && data.length > 0 ? data.map((input, index) => (
+            {data && data.inputs.length > 0 ? data.inputs.map((input, index) => (
 
-              <tr key={index} className="border-white clickable" onClick={() => onEdit(index)}>
+              <tr key={index} className="border-white clickable" onClick={() => onEdit(input)}>
 
                 <td className={tdClass(input.value, "text-start d-flex")}>
                   <span className={"me-2 " + (input.done ? "" : " text-white")}>
@@ -44,9 +42,9 @@ export default function Inputs({ data, onEdit = () => { } }: InputProps) {
                 </td>
 
                 <td className={tdClass(input.value, "text-center")}>
-                  {input.installment ? (
+                  {input.step ? (
                     <>
-                      {input.installment.current} de {input.installment.total}
+                      {input.step[0]} de {input.step[1]}
                     </>
                   ) : 'Único'}
                 </td>
@@ -69,7 +67,7 @@ export default function Inputs({ data, onEdit = () => { } }: InputProps) {
 
           </tbody>
 
-          {total ? (
+          {data && data.total ? (
             <tfoot>
               <tr>
                 <td colSpan={5} className="m-0 p-0">
@@ -80,8 +78,8 @@ export default function Inputs({ data, onEdit = () => { } }: InputProps) {
                 <th colSpan={4} className="border-white text-start text-dark h5">
                   Total
                 </th>
-                <th className={tdClass(total, "border-white text-end h5")}>
-                  {total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                <th className={tdClass(data.total, "border-white text-end h5")}>
+                  {data.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
               </tr>
             </tfoot >

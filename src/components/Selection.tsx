@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Button, Container, FloatingLabel, Form } from "react-bootstrap";
 import { MdAutorenew } from "react-icons/md";
+import type { MonthIndex } from "../assets/finance.type";
 
 const months = [
   "Janeiro", "Fevereiro", "Março",
@@ -10,7 +11,7 @@ const months = [
 ];
 
 export type SelectionState = {
-  month?: number;
+  month?: MonthIndex;
   year?: number;
   category?: string;
 }
@@ -24,7 +25,7 @@ export type SelectionProps = {
 export default function Selection({ state, categories = [], onChange = () => { } }: SelectionProps) {
 
   const current: [number, number] = [new Date().getMonth(), new Date().getFullYear()];
-  useEffect(() => onChange({ month: current[0], year: current[1], category: "" }), []);
+  useEffect(() => onChange({ month: current[0] as MonthIndex, year: current[1], category: "" }), []);
 
   return (
 
@@ -46,7 +47,7 @@ export default function Selection({ state, categories = [], onChange = () => { }
         </FloatingLabel>
 
         <FloatingLabel className="flex-fill" label="Mês">
-          <Form.Select className="rounded-0" onChange={(e) => onChange({ month: Number(e.target.value) })} value={state.month || current[0]}>
+          <Form.Select className="rounded-0" onChange={(e) => onChange({ month: Number(e.target.value) as MonthIndex })} value={state.month || current[0]}>
             {months.map((month, index) => (
               <option key={index} value={index}>
                 {month}
@@ -67,7 +68,7 @@ export default function Selection({ state, categories = [], onChange = () => { }
 
         <div className="d-flex align-items-center text-center mx-2">
           <Button className="text-warning-emphasis" variant="link" size="sm" onClick={() => {
-            onChange({ month: current[0], year: current[1], category: "" });
+            onChange({ month: current[0] as MonthIndex, year: current[1], category: "" });
           }}>
             <MdAutorenew size={32} />
           </Button>
