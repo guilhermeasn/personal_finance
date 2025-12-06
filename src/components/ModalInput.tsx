@@ -1,36 +1,61 @@
 import { getPresetMask, useMask } from "mask-hooks";
 import { useEffect, useState } from "react";
-import { Alert, Button, FloatingLabel, Form, Modal } from "react-bootstrap";
+import { Alert, Button, FloatingLabel, Form, InputGroup, Modal } from "react-bootstrap";
 import { MdError } from "react-icons/md";
-import type { Category, Input } from "../assets/finance.type";
+import type { Category, CreateInput } from "../assets/finance.type";
 
 export type ModalInputProps = {
   show: boolean;
   categories?: Category[];
   onHide: () => void;
-  onSave: (input: Input) => string | null;
+  onSave: (input: CreateInput) => Promise<string | null>;
 }
 
-export default function ModalInput({ show, categories = [], onHide }: ModalInputProps) {
+type CreateInputForm = {
+  day: string;
+  category: string;
+  description: string;
+  value: string;
+  step_current: string;
+  step_total: string;
+  done: boolean;
+}
+
+export default function ModalInput({ show, categories = [], onHide, onSave }: ModalInputProps) {
 
   const dayMask = useMask({ masks: '[1-31]' });
   const valueMask = useMask(getPresetMask('CURRENCY_PTBR'));
-  const reccurenceMask = useMask({ masks: '###' });
+  const stepMask = useMask({ masks: '###' });
 
-  const dataDefault = {
+  const dataDefault: CreateInputForm = {
     day: new Date().getDate().toString(), category: '', description: "",
-    value: valueMask('0'), reccurence: reccurenceMask('1'), done: true
+    value: valueMask('0'), step_current: '1', step_total: '1', done: true
   }
 
-  const [data, setData] = useState(dataDefault);
+  const [data, setData] = useState<CreateInputForm>(dataDefault);
   const [error, setError] = useState<string | null>(null);
+  const [wait, setWait] = useState<boolean>(false);
+  const [op, setOp] = useState<'+' | '-'>('+');
 
   useEffect(() => (setError(null), setData(dataDefault)), [show]);
 
-  const save = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlerData = (change: Partial<CreateInputForm>) => {
+    setData({ ...data, ...change });
+  }
+
+  const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // const error = onSave(input);
+    setWait(true);
+    const error = await onSave({
+      day: parseInt(data.day),
+      category: data.category,
+      description: data.description,
+      value: parseFloat(data.value.replace(',', '.').replace(/[^0-9.]/g, '')) * (op === '+' ? 1 : -1),
+      step: [parseInt(data.step_current), parseInt(data.step_total)],
+      done: data.done
+    });
     error ? setError(error) : onHide();
+    setWait(false);
   }
 
   return (
@@ -55,60 +80,72 @@ export default function ModalInput({ show, categories = [], onHide }: ModalInput
           )}
 
           <FloatingLabel className="my-2" label="Dia">
-            <Form.Control type="text" placeholder=" " value={data.day} onChange={(e) => setData({ ...data, day: dayMask(e.target.value) })} />
+            <Form.Control type="text" placeholder=" " value={data.day} onChange={(e) => handlerData({ day: dayMask(e.target.value) })} disabled={wait} />
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Categoria">
-            <Form.Select value={data.category} onChange={(e) => setData({ ...data, category: e.target.value })}>
+            <Form.Select value={data.category} onChange={(e) => handlerData({ category: e.target.value })} disabled={wait}>
               {!categories || categories.length === 0 ? (
                 <option value="" disabled>
                   Nenhuma categoria cadastrada ainda
                 </option>
-              ) : (
-                categories.map((category, index) => (
+              ) : <>
+                <option value="" disabled>Selecione uma categoria</option>
+                {categories.map((category, index) => (
                   <option key={index} value={category.id}>
                     {category.name}
                   </option>
-                ))
-              )}
+                ))}
+              </>
+              }
             </Form.Select>
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Descrição">
-            <Form.Control type="text" placeholder=" " value={data.description} onChange={(e) => setData({ ...data, description: e.target.value })} />
+            <Form.Control type="text" placeholder=" " value={data.description} onChange={(e) => handlerData({ description: e.target.value })} disabled={wait} />
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Tipo de Operação">
-            <Form.Select>
+            <Form.Select value={op} onChange={(e) => setOp(e.target.value as ('+' | '-'))} disabled={wait}>
               <option value="-">Débito (-)</option>
               <option value="+">Crédito (+)</option>
             </Form.Select>
           </FloatingLabel>
 
           <FloatingLabel className="my-2" label="Valor">
-            <Form.Control type="text" placeholder=" " value={data.value} onChange={(e) => setData({ ...data, value: valueMask(e.target.value) })} />
+            <Form.Control type="text" placeholder=" " value={data.value} onChange={(e) => handlerData({ value: valueMask(e.target.value) })} disabled={wait} />
           </FloatingLabel>
 
-          <FloatingLabel className="my-2" label="Recorrência">
-            <Form.Control type="text" placeholder=" " value={data.reccurence} onChange={(e) => setData({ ...data, reccurence: reccurenceMask(e.target.value) })} />
-          </FloatingLabel>
+          <InputGroup>
+
+            <FloatingLabel className="my-2" label="Parcela">
+              <Form.Control type="text" placeholder=" " value={data.step_current} onChange={(e) => handlerData({ step_current: stepMask(e.target.value) })} disabled={wait} />
+            </FloatingLabel>
+
+            <FloatingLabel className="my-2" label="Total">
+              <Form.Control type="text" placeholder=" " value={data.step_total} onChange={(e) => handlerData({ step_total: stepMask(e.target.value) })} disabled={wait} />
+            </FloatingLabel>
+
+          </InputGroup>
+
 
           <div className="d-flex justify-content-center">
             <Form.Check
               type="switch"
               label="Entrada Confirmada"
               checked={data.done}
-              onChange={(e) => setData({ ...data, done: e.target.checked })}
+              onChange={(e) => handlerData({ done: e.target.checked })}
+              disabled={wait}
             />
           </div>
 
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="outline-secondary" onClick={onHide}>
+          <Button variant="outline-secondary" onClick={onHide} disabled={wait}>
             Cancelar
           </Button>
-          <Button variant="dark" type="submit">
+          <Button variant="dark" type="submit" disabled={wait}>
             Salvar
           </Button>
         </Modal.Footer>

@@ -74,6 +74,7 @@ function SortableItem({
           onChange={(e) => onChange(e.target.value)}
           placeholder="Nome da categoria"
           isInvalid={!!originalName && category.name.trim() === ""}
+          autoFocus
         />
         <Form.Control.Feedback type="invalid">A categoria <strong>{originalName || category.name}</strong> será excluída</Form.Control.Feedback>
       </InputGroup>
@@ -145,7 +146,7 @@ export default function ModalCategories({ show, onHide, categories, onSave }: Mo
             Nenhuma categoria cadastrada
           </div>
         )}
-        <Form>
+        <Form onSubmit={e => (e.preventDefault(), handleAddCategory())}>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -170,7 +171,7 @@ export default function ModalCategories({ show, onHide, categories, onSave }: Mo
           </DndContext>
 
           <div className="d-grid mt-3">
-            <Button variant="warning" onClick={handleAddCategory}>
+            <Button variant="warning" type="submit">
               Adicionar Categoria
             </Button>
           </div>

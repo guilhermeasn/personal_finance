@@ -1,8 +1,9 @@
 import { Container, Table } from "react-bootstrap";
 import { MdOutlineCheckCircle } from "react-icons/md";
-import type { Input, MonthData } from "../assets/finance.type";
+import type { Category, Input, MonthData } from "../assets/finance.type";
 
 export type InputProps = {
+  categories?: Category[];
   data?: MonthData | null;
   onEdit?: (input: Input) => void;
 }
@@ -11,7 +12,7 @@ function tdClass(value: number, className?: string): string {
   return 'text-' + (value < 0 ? "danger" : (value > 0 ? "primary" : "secondary")) + (className ? " " + className : "");
 }
 
-export default function Inputs({ data = null, onEdit = () => { } }: InputProps) {
+export default function Inputs({ categories = [], data = null, onEdit = () => { } }: InputProps) {
 
   return (
     <Container>
@@ -34,7 +35,7 @@ export default function Inputs({ data = null, onEdit = () => { } }: InputProps) 
                 </td>
 
                 <td className={tdClass(input.value, "text-center")}>
-                  {input.category}
+                  {categories.find((category) => category.id === input.category)?.name || '-----'}
                 </td>
 
                 <td className={tdClass(input.value, "text-center")}>
@@ -42,7 +43,7 @@ export default function Inputs({ data = null, onEdit = () => { } }: InputProps) 
                 </td>
 
                 <td className={tdClass(input.value, "text-center")}>
-                  {input.step ? (
+                  {input.step[0] !== 1 && input.step[1] !== 1 ? (
                     <>
                       {input.step[0]} de {input.step[1]}
                     </>

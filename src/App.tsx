@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Database } from "./assets/database.class";
 import { Finance } from "./assets/finance.class";
-import type { Category, Input, MonthData } from "./assets/finance.type";
+import type { Category, Input, MonthData, MonthIndex } from "./assets/finance.type";
 import Buttons from "./components/Buttons";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
@@ -14,11 +14,23 @@ const finance = new Finance(
   new Database('personal_finance')
 );
 
+function currentDate(): SelectionState {
+  return {
+    month: new Date().getMonth() as MonthIndex,
+    year: new Date().getFullYear(),
+    category: ""
+  }
+}
+
 export default function App() {
 
   const [data, setData] = useState<MonthData | null>(null);
-  const [selection, setSelection] = useState<SelectionState>({});
-  useEffect(() => (selection.month && selection.year && finance.getMonth(selection.month, selection.year).then(setData), void (0)), [selection]);
+  const [selection, setSelection] = useState<SelectionState>(currentDate());
+
+  useEffect(() => {
+    if (selection.month === undefined || selection.year === undefined) return;
+    finance.getMonth(selection.month, selection.year, selection.category).then(setData);
+  }, [selection]);
 
   const [categories, setCategories] = useState<Category[]>([]);
   useEffect(() => (finance.getCategories().then(setCategories), void (0)), []);
@@ -38,10 +50,12 @@ export default function App() {
         <Selection
           state={selection}
           onChange={setSelection}
+          onReset={() => setSelection(currentDate())}
           categories={categories}
         />
 
         <Inputs
+          categories={categories}
           data={data}
           onEdit={setInputModal}
         />
@@ -55,7 +69,18 @@ export default function App() {
           show={inputModal === true}
           categories={categories}
           onHide={() => setInputModal(false)}
-          onSave={(input) => (console.log(input), null)}
+          onSave={async (input) => {
+            if (!selection.month || !selection.year) return "Erro inesperado";
+            if (input.category === "") return "Selecione uma categoria";
+            if (input.description === "") return "Insira uma descrição";
+            try {
+              await finance.setInput(selection.month, selection.year, input);
+              await finance.getMonth(selection.month, selection.year).then(setData);
+              return null;
+            } catch (error) {
+              return error instanceof Error ? error.message : "Erro inesperado";
+            }
+          }}
         />
 
         <ModalCategories
