@@ -43,7 +43,7 @@ export default function Inputs({ categories = [], data = null, onEdit = () => { 
                 </td>
 
                 <td className={tdClass(input.value, "text-center")}>
-                  {input.step[0] !== 1 && input.step[1] !== 1 ? (
+                  {input.step[0] !== 1 || input.step[1] !== 1 ? (
                     <>
                       {input.step[0]} de {input.step[1]}
                     </>
