@@ -24,8 +24,8 @@ export default function Groups({ data, onCategory }: GroupsProps) {
 
           <tbody>
             {data && Object.entries(data).map(([category, value]) => category !== '__total__' && (
-              <tr key={category} className="border-warning-table clickable">
-                <td className="text-start text-dark" onClick={() => onCategory(category)}>{value.name}</td>
+              <tr key={category} className="border-warning-table clickable" onClick={() => onCategory(category)}>
+                <td className="text-start text-dark">{value.name}</td>
                 <td className={tdClass(value.done, "text-center")}>{value.done.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                 <td className={tdClass(value.total, "text-end")}>{value.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
               </tr>

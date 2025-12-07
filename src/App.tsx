@@ -65,7 +65,7 @@ export default function App() {
         ) : (
           <Groups
             data={group}
-            onCategory={() => { }}
+            onCategory={category => setSelection({ ...selection, category })}
           />
         )}
 
