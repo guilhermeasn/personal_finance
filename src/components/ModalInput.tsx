@@ -50,10 +50,10 @@ export default function ModalInput({ show, categories = [], onHide, onSave }: Mo
       day: parseInt(data.day),
       category: data.category,
       description: data.description,
-      value: parseFloat(data.value.replace(',', '.').replace(/[^0-9.]/g, '')) * (op === '+' ? 1 : -1),
+      value: parseFloat(data.value.replace(/[^0-9,]/g, '').replace(',', '.')) * (op === '+' ? 1 : -1),
       step: [parseInt(data.step_current), parseInt(data.step_total)],
       done: data.done
-    });
+    })
     error ? setError(error) : onHide();
     setWait(false);
   }
