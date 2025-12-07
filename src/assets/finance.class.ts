@@ -1,9 +1,11 @@
 import type {
   Category,
   CreateInput,
+  GroupData,
   IDatabase,
   Input,
   Moment,
+  Month,
   MonthData,
   MonthIndex,
   Step,
@@ -54,6 +56,16 @@ export class Finance {
 
   }
 
+  static nextMonth(month: MonthIndex, year: number): Month {
+    const sm = Finance.getMonths(month, year, [1, 2])[1]
+    return { month: sm.month, year: sm.year };
+  }
+
+  static previousMonth(month: MonthIndex, year: number): Month {
+    const sm = Finance.getMonths(month, year, [2, 2])[0]
+    return { month: sm.month, year: sm.year };
+  }
+
   static lastDay(month: MonthIndex, year: number): number {
     return new Date(year, month + 1, 0).getDate();
   }
@@ -88,18 +100,26 @@ export class Finance {
   async getMonth(month: MonthIndex, year: number, category?: string): Promise<MonthData> {
     const data = await this.getInputs(month, year);
     const inputs = (category ? data.filter(input => input.category === category) : data).sort((a, b) => a.day - b.day);
+    const done = inputs.reduce((done, input) => done + (input.done ? input.value : 0), 0);
     const total = inputs.reduce((total, input) => total + input.value, 0);
-    return { inputs, total };
+    return { inputs, done, total };
   }
 
-  async getMonthByCategory(month: MonthIndex, year: number): Promise<Record<string | '__total__', number>> {
-    const { inputs, total } = await this.getMonth(month, year);
-    return {
-      ...inputs.reduce((total, input) => {
-        total[input.category] = (total?.[input.category] || 0) + input.value;
-        return total;
-      }, {} as Record<string | '__total__', number>), '__total__': total
+  async getGroup(month: MonthIndex, year: number): Promise<GroupData> {
+    const categories = await this.getCategories();
+    const { inputs } = await this.getMonth(month, year);
+    const groupData: GroupData = {};
+    for (let input of inputs) {
+      if (!groupData[input.category]) groupData[input.category] = { name: categories.find(category => category.id === input.category)?.name ?? "Descategorizado", done: 0, total: 0 };
+      groupData[input.category].done += input.done ? input.value : 0;
+      groupData[input.category].total += input.value;
+    }
+    groupData['__total__'] = {
+      name: "Total",
+      done: inputs.reduce((done, input) => done + (input.done ? input.value : 0), 0),
+      total: inputs.reduce((total, input) => total + input.value, 0)
     };
+    return groupData;
   }
 
   async setInput(month: MonthIndex, year: number, newInput: CreateInput): Promise<void> {

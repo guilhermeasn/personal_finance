@@ -36,7 +36,7 @@ export default function Selection({ state, categories = [], onChange = () => { }
             <option value="__group__">AGRUPADAS</option>
             <option disabled>-----</option>
             {categories.map((category, index) => (
-              <option key={index} value={category.name}>
+              <option key={index} value={category.id}>
                 {category.name}
               </option>
             ))}

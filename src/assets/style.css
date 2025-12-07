@@ -19,3 +19,11 @@ body {
 .button-min-width {
   min-width: 150px;
 }
+
+.bg-warning-table {
+  background-color: #fff3cd !important;
+}
+
+.border-warning-table {
+  border-color: #fff3cd !important;
+}

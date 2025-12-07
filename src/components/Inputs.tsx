@@ -8,7 +8,7 @@ export type InputProps = {
   onEdit?: (input: Input) => void;
 }
 
-function tdClass(value: number, className?: string): string {
+export function tdClass(value: number, className?: string): string {
   return 'text-' + (value < 0 ? "danger" : (value > 0 ? "primary" : "secondary")) + (className ? " " + className : "");
 }
 
@@ -19,13 +19,13 @@ export default function Inputs({ categories = [], data = null, onEdit = () => { 
       <div className="rounded p-3 bg-white">
         <Table className="p-0 m-0" variant="white" responsive>
 
-          <tbody>
+          <tbody className="small">
 
             {data && data.inputs.length > 0 ? data.inputs.map((input, index) => (
 
               <tr key={index} className="border-white clickable" onClick={() => onEdit(input)}>
 
-                <td className={tdClass(input.value, "text-start d-flex")}>
+                <td className={tdClass(input.value, "text-start d-flex text-nowrap")}>
                   <span className={"me-2 " + (input.done ? "" : " text-white")}>
                     <MdOutlineCheckCircle size={24} />
                   </span>
@@ -42,15 +42,14 @@ export default function Inputs({ categories = [], data = null, onEdit = () => { 
                   {input.description}
                 </td>
 
-                <td className={tdClass(input.value, "text-center")}>
-                  {input.step[0] !== 1 || input.step[1] !== 1 ? (
-                    <>
-                      {input.step[0]} de {input.step[1]}
-                    </>
-                  ) : 'Único'}
+                <td className={tdClass(input.value, "text-center text-nowrap")}>
+                  {input.step[0] !== 1 || input.step[1] !== 1
+                    ? input.step[0] + ' de ' + input.step[1]
+                    : 'Único'
+                  }
                 </td>
 
-                <th className={tdClass(input.value, "text-end")}>
+                <th className={tdClass(input.value, "text-end text-nowrap")}>
                   {input.value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
 
@@ -70,11 +69,22 @@ export default function Inputs({ categories = [], data = null, onEdit = () => { 
 
           {data && data.total ? (
             <tfoot>
+
               <tr>
                 <td colSpan={5} className="m-0 p-0">
                   &nbsp;
                 </td>
               </tr>
+
+              <tr>
+                <td colSpan={4} className="border-white text-start text-dark">
+                  Confirmados
+                </td>
+                <td className={tdClass(data.done, "border-white text-end")}>
+                  {data.done.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </td>
+              </tr>
+
               <tr>
                 <th colSpan={4} className="border-white text-start text-dark h5">
                   Total
@@ -83,6 +93,7 @@ export default function Inputs({ categories = [], data = null, onEdit = () => { 
                   {data.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
               </tr>
+
             </tfoot >
           ) : null
           }
