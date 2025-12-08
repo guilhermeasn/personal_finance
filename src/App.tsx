@@ -3,13 +3,13 @@ import { Database } from "./assets/database.class";
 import { Finance } from "./assets/finance.class";
 import type { Category, GroupData, Input, MonthData, MonthIndex } from "./assets/finance.type";
 import Buttons from "./components/Buttons";
+import Groups from "./components/Groups";
 import Header from "./components/Header";
 import Inputs from "./components/Inputs";
 import ModalCategories from "./components/ModalCategories";
 import ModalConfirm from "./components/ModalConfirm";
 import ModalInput from "./components/ModalInput";
 import Selection, { type SelectionState } from "./components/Selection";
-import Groups from "./components/groups";
 
 const finance = new Finance(
   new Database('personal_finance')

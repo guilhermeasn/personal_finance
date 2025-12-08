@@ -23,11 +23,17 @@ export default function Groups({ data, onCategory }: GroupsProps) {
           </thead>
 
           <tbody>
-            {data && Object.entries(data).map(([category, value]) => category !== '__total__' && (
+            {data && Object.entries(data).map(([category, value]) => category !== '__total__' ? (
               <tr key={category} className="border-warning-table clickable" onClick={() => onCategory(category)}>
                 <td className="text-start text-dark">{value.name}</td>
                 <td className={tdClass(value.done, "text-center")}>{value.done.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                 <td className={tdClass(value.total, "text-end")}>{value.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+              </tr>
+            ) : (
+              <tr>
+                <td colSpan={3} className="m-0 p-0 text-center">
+                  Nenhum dado encontrado
+                </td>
               </tr>
             ))}
           </tbody>
