@@ -51,4 +51,26 @@ export class Database implements IDatabase {
     await this.instance.setItem<T>(key, value)
   }
 
+  async exportDB(): Promise<boolean> {
+    const data: Record<string, any> = {};
+    const keys = await this.instance.keys();
+    if (keys.length === 0) return false;
+    for (let key of keys) data[key] = await this.instance.getItem(key);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = this.selectedDB + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    return true;
+  }
+
+  async importDB(data: Record<string, any>): Promise<string[]> {
+    const keys = Object.keys(data);
+    await this.newDB();
+    for (let key of keys) await this.instance.setItem(key, data[key]);
+    return await this.getDB();
+  }
+
 }

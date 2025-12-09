@@ -18,7 +18,7 @@ export default function ModalConfirm({
 
   return (
 
-    <Modal show={show} onHide={onHide} centered>
+    <Modal className="bg-dark-transparent" show={show} onHide={onHide} centered>
 
       <Modal.Header className={`rounded-bottom-0 alert alert-${isConfirm ? 'danger' : 'warning'}`} closeButton>
         <Modal.Title>{isConfirm ? 'Confirmar' : 'Aviso'}</Modal.Title>
@@ -33,7 +33,7 @@ export default function ModalConfirm({
           {isConfirm ? 'Cancelar' : 'Ok'}
         </Button>
         {isConfirm && (
-          <Button variant="danger" onClick={onConfirm}>
+          <Button variant="danger" onClick={() => (onConfirm && onConfirm(), onHide())}>
             Confirmar
           </Button>
         )}
