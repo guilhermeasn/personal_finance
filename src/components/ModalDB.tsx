@@ -57,9 +57,9 @@ export default function ModalDB({ selectedDB, onSearchEmptyDB, show, onHide, onC
             </Form.Select>
           </Form.FloatingLabel>
           <div className="d-flex flex-column justify-content-center">
-            <Button variant="outline-dark" className="mt-3" onClick={onExportDB} disabled={!emptyDB || emptyDB[selectedDB]}>Exportar Banco de Dados</Button>
-            <Button variant="outline-dark" className="mt-3" onClick={handleImportDB} disabled={!emptyDB || !emptyDB[selectedDB]}>Importar Banco de Dados</Button>
-            <Button variant="outline-danger" className="mt-3" onClick={() => (onDeleteDB(), onHide())} disabled={!emptyDB || emptyDB[selectedDB]}>Excluir Banco de Dados</Button>
+            <Button variant="outline-dark" className="mt-3" onClick={onExportDB} disabled={!emptyDB || emptyDB[selectedDB]}>Exportar Dados</Button>
+            <Button variant="outline-dark" className="mt-3" onClick={handleImportDB} disabled={!emptyDB || !emptyDB[selectedDB]}>Importar Dados</Button>
+            <Button variant="outline-danger" className="mt-3" onClick={() => (onDeleteDB(), onHide())} disabled={!emptyDB || emptyDB[selectedDB]}>Excluir Dados</Button>
           </div>
         </Modal.Body>
 
