@@ -1,18 +1,22 @@
+import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import type { DatabaseName } from "../assets/database.class";
 
 export type ModalDBProps = {
-  selectedDB: string;
-  dbs: string[];
   show: boolean;
+  selectedDB: DatabaseName;
+  onSearchEmptyDB: () => Promise<Record<DatabaseName, boolean>>;
   onHide: () => void;
-  onChangeDB: (db: string) => void;
-  onNewDB: () => void;
+  onChangeDB: (db: DatabaseName) => void;
   onDeleteDB: () => void;
   onExportDB: () => void;
   onImportDB: (db: Record<string, any>) => void;
 }
 
-export default function ModalDB({ selectedDB, dbs, show, onHide, onChangeDB, onNewDB, onDeleteDB, onExportDB, onImportDB }: ModalDBProps) {
+export default function ModalDB({ selectedDB, onSearchEmptyDB, show, onHide, onChangeDB, onDeleteDB, onExportDB, onImportDB }: ModalDBProps) {
+
+  const [emptyDB, setEmptyDB] = useState<Record<DatabaseName, boolean>>();
+  useEffect(() => (show && onSearchEmptyDB().then(setEmptyDB), void (0)), [show]);
 
   const handleImportDB = () => {
     const file = document.createElement('input');
@@ -44,19 +48,18 @@ export default function ModalDB({ selectedDB, dbs, show, onHide, onChangeDB, onN
 
         <Modal.Body>
           <Form.FloatingLabel className="flex-fill" label="Banco de Dados">
-            <Form.Select className="rounded-0" onChange={(e) => onChangeDB(e.target.value)} value={selectedDB}>
-              {dbs.map((db, index) => (
+            <Form.Select className="rounded-0" onChange={(e) => onChangeDB(e.target.value as DatabaseName)} value={selectedDB}>
+              {emptyDB && Object.entries(emptyDB).map(([db, empty], index) => (
                 <option key={index} value={db}>
-                  {db}
+                  {db} ({empty ? 'vazio' : 'ocupado'})
                 </option>
               ))}
             </Form.Select>
           </Form.FloatingLabel>
           <div className="d-flex flex-column justify-content-center">
-            <Button variant="outline-success" onClick={onNewDB} className="mt-3">Novo Banco de Dados</Button>
-            <Button variant="outline-dark" onClick={onExportDB} className="mt-3">Exportar Banco de Dados</Button>
-            <Button variant="outline-dark" onClick={handleImportDB} className="mt-3">Importar Banco de Dados</Button>
-            <Button variant="outline-danger" onClick={onDeleteDB} className="mt-3">Excluir Banco de Dados</Button>
+            <Button variant="outline-dark" className="mt-3" onClick={onExportDB} disabled={!emptyDB || emptyDB[selectedDB]}>Exportar Banco de Dados</Button>
+            <Button variant="outline-dark" className="mt-3" onClick={handleImportDB} disabled={!emptyDB || !emptyDB[selectedDB]}>Importar Banco de Dados</Button>
+            <Button variant="outline-danger" className="mt-3" onClick={() => (onDeleteDB(), onHide())} disabled={!emptyDB || emptyDB[selectedDB]}>Excluir Banco de Dados</Button>
           </div>
         </Modal.Body>
 

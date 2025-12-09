@@ -1,46 +1,46 @@
 import localforage from "localforage";
 import type { IDatabase } from "./finance.type";
 
+export type DatabaseName = (
+  | 'DB01' | 'DB02' | 'DB03' | 'DB04'
+  | 'DB05' | 'DB06' | 'DB07' | 'DB08'
+  | 'DB09' | 'DB10' | 'DB11' | 'DB12'
+);
+
 export class Database implements IDatabase {
 
-  private DB: LocalForage;
+  static optionsDB: DatabaseName[] = [
+    'DB01', 'DB02', 'DB03', 'DB04',
+    'DB05', 'DB06', 'DB07', 'DB08',
+    'DB09', 'DB10', 'DB11', 'DB12'
+  ];
+
   private instance: LocalForage;
-  private selectedDB: string;
+  private db: DatabaseName;
 
   constructor() {
-    this.selectedDB = 'DB1';
-    this.DB = localforage.createInstance({ name: "__DBS__" });
-    this.instance = localforage.createInstance({ name: this.selectedDB });
+    this.db = localStorage.getItem('DB') as DatabaseName ?? 'DB0';
+    this.instance = localforage.createInstance({ name: this.db });
   }
 
-  selected(): string {
-    return this.selectedDB;
+  currentDB(): DatabaseName {
+    return this.db;
   }
 
-  async newDB(changeDB: boolean = true): Promise<string[]> {
-    const dbs = await this.getDB();
-    const newdb = 'DB' + (dbs.length + 1);
-    await this.DB.setItem<string[]>('names', [...dbs, newdb]);
-    if (changeDB) this.changeDB(newdb);
-    return await this.getDB();
+  changeDB(db: DatabaseName) {
+    this.db = db;
+    localStorage.setItem('DB', db);
+    this.instance = localforage.createInstance({ name: db });
   }
 
-  async getDB(): Promise<string[]> {
-    const dbs = await this.DB.getItem<string[]>('names') ?? [];
-    return dbs.length > 0 ? dbs : ['DB1'];
+  async truncateDB(db: DatabaseName) {
+    await localforage.createInstance({ name: db }).dropInstance();
   }
 
-  async deleteDB(dbName: string): Promise<string[]> {
-    await localforage.createInstance({ name: dbName }).dropInstance();
-    const dbs = await this.getDB();
-    await this.DB.setItem<string[]>('names', dbs.filter(db => db !== dbName));
-    if (this.selectedDB === dbName) this.changeDB(dbs?.[0] ?? 'DB1');
-    return await this.getDB();
-  }
-
-  changeDB(dbName: string) {
-    this.selectedDB = dbName;
-    this.instance = localforage.createInstance({ name: dbName });
+  async emptyDB(): Promise<Record<DatabaseName, boolean>> {
+    const dbs = {} as Record<DatabaseName, boolean>;
+    for (let db of Database.optionsDB) dbs[db] = await localforage.createInstance({ name: db }).keys().then(keys => keys.length === 0);
+    return dbs;
   }
 
   async get<T>(key: string): Promise<T | null> {
@@ -60,17 +60,18 @@ export class Database implements IDatabase {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = this.selectedDB + '.json';
+    a.download = this.db + '.json';
     a.click();
     URL.revokeObjectURL(url);
     return true;
   }
 
-  async importDB(data: Record<string, any>): Promise<string[]> {
-    const keys = Object.keys(data);
-    await this.newDB();
-    for (let key of keys) await this.instance.setItem(key, data[key]);
-    return await this.getDB();
+  async importDB(data: Record<string, any>): Promise<boolean> {
+    const keys = await this.instance.keys();
+    if (keys.length !== 0) return false;
+    const items = Object.keys(data);
+    for (let item of items) await this.instance.setItem(item, data[item]);
+    return true;
   }
 
 }

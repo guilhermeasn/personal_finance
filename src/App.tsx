@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Database } from "./assets/database.class";
+import { Database, type DatabaseName } from "./assets/database.class";
 import { Finance } from "./assets/finance.class";
 import type { Category, GroupData, Input, MonthData, MonthIndex } from "./assets/finance.type";
 import Buttons from "./components/Buttons";
@@ -25,14 +25,8 @@ function currentDate(): SelectionState {
 
 export default function App() {
 
-  const [dbConfig, setDbConfig] = useState<{ selected: string; dbs: string[] }>({
-    selected: db.selected(),
-    dbs: []
-  });
-
-  useEffect(() => {
-    db.getDB().then(dbs => setDbConfig({ selected: db.selected(), dbs }));
-  }, []);
+  const [dbConfig, setDbConfig] = useState<DatabaseName>(db.currentDB());
+  useEffect(() => db.changeDB(dbConfig), [dbConfig]);
 
   const [data, setData] = useState<MonthData | null>(null);
   const [group, setGroup] = useState<GroupData | null>(null);
@@ -42,8 +36,6 @@ export default function App() {
     if (selection.category !== "__group__") finance.getMonth(selection.month, selection.year, selection.category).then(setData);
     else finance.getGroup(selection.month, selection.year).then(setGroup);
   }, [selection, dbConfig]);
-
-  useEffect(() => { db.changeDB(dbConfig.selected) }, [dbConfig]);
 
   const [categories, setCategories] = useState<Category[]>([]);
   useEffect(() => (finance.getCategories().then(setCategories), void (0)), [dbConfig]);
@@ -90,14 +82,13 @@ export default function App() {
 
         <ModalDB
           show={dbModal}
-          selectedDB={dbConfig.selected}
-          dbs={dbConfig.dbs}
+          selectedDB={dbConfig}
+          onSearchEmptyDB={db.emptyDB}
           onHide={() => setDbModal(false)}
-          onChangeDB={db => setDbConfig({ selected: db, dbs: dbConfig.dbs })}
-          onNewDB={() => db.newDB().then((dbs) => setDbConfig({ selected: db.selected(), dbs }))}
-          onDeleteDB={() => setConfirmModal([`Deseja realmente excluir o banco de dados ${dbConfig.selected}?`, () => db.deleteDB(dbConfig.selected).then((dbs) => setDbConfig({ selected: db.selected(), dbs }))])}
-          onExportDB={() => db.exportDB().then((success) => success ? void (0) : setConfirmModal(`Banco de dados ${dbConfig.selected} vazio!`))}
-          onImportDB={(data) => { db.importDB(data).then((dbs) => setDbConfig({ selected: db.selected(), dbs })) }}
+          onChangeDB={db => setDbConfig(db)}
+          onDeleteDB={() => setConfirmModal([`Deseja realmente excluir o banco de dados ${dbConfig}?`, () => db.truncateDB(dbConfig)])}
+          onExportDB={() => db.exportDB().then((success) => success ? void (0) : setConfirmModal(`Banco de dados ${dbConfig} vazio!`))}
+          onImportDB={(data) => db.importDB(data).then(r => setConfirmModal(r ? 'Dados importados com sucesso!' : `Banco de dados ${dbConfig} não está vazio! Para importar dados, selecione um banco de dados vazio.`))}
         />
 
         <ModalInput
