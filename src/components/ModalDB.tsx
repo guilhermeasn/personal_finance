@@ -35,7 +35,7 @@ export default function ModalDB({ selectedDB, dbs, show, onHide, onChangeDB, onN
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={show} centered>
       <Modal.Header className="alert alert-warning border-bottom-0">
         <Modal.Title>Banco de Dados</Modal.Title>
       </Modal.Header>
