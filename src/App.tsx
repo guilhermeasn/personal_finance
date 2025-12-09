@@ -8,12 +8,12 @@ import Header from "./components/Header";
 import Inputs from "./components/Inputs";
 import ModalCategories from "./components/ModalCategories";
 import ModalConfirm from "./components/ModalConfirm";
+import ModalDB from "./components/ModalDB";
 import ModalInput from "./components/ModalInput";
 import Selection, { type SelectionState } from "./components/Selection";
 
-const finance = new Finance(
-  new Database('personal_finance')
-);
+const db = new Database();
+const finance = new Finance(db);
 
 function currentDate(): SelectionState {
   return {
@@ -25,6 +25,15 @@ function currentDate(): SelectionState {
 
 export default function App() {
 
+  const [dbConfig, setDbConfig] = useState<{ selected: string; dbs: string[] }>({
+    selected: db.selected(),
+    dbs: []
+  });
+
+  useEffect(() => {
+    db.getDB().then(dbs => setDbConfig({ selected: db.selected(), dbs }));
+  }, []);
+
   const [data, setData] = useState<MonthData | null>(null);
   const [group, setGroup] = useState<GroupData | null>(null);
   const [selection, setSelection] = useState<SelectionState>(currentDate());
@@ -32,11 +41,14 @@ export default function App() {
   useEffect(() => {
     if (selection.category !== "__group__") finance.getMonth(selection.month, selection.year, selection.category).then(setData);
     else finance.getGroup(selection.month, selection.year).then(setGroup);
-  }, [selection]);
+  }, [selection, dbConfig]);
+
+  useEffect(() => { db.changeDB(dbConfig.selected) }, [dbConfig]);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  useEffect(() => (finance.getCategories().then(setCategories), void (0)), []);
+  useEffect(() => (finance.getCategories().then(setCategories), void (0)), [dbConfig]);
 
+  const [dbModal, setDbModal] = useState(false);
   const [inputModal, setInputModal] = useState<boolean | Input>(false);
   const [confirmModal, setConfirmModal] = useState<string | null | [string, () => void]>(null);
   const [categoriesModal, setCategoriesModal] = useState(false);
@@ -45,7 +57,7 @@ export default function App() {
 
     <>
 
-      <Header />
+      <Header onChangeDataBase={() => setDbModal(true)} />
 
       <main>
 
@@ -74,6 +86,16 @@ export default function App() {
           onCategories={() => setCategoriesModal(true)}
           onPreviousMonth={() => setSelection({ ...selection, ...Finance.previousMonth(selection.month, selection.year) })}
           onNextMonth={() => setSelection({ ...selection, ...Finance.nextMonth(selection.month, selection.year) })}
+        />
+
+        <ModalDB
+          show={dbModal}
+          selectedDB={dbConfig.selected}
+          dbs={dbConfig.dbs}
+          onHide={() => setDbModal(false)}
+          onChangeDB={db => setDbConfig({ selected: db, dbs: dbConfig.dbs })}
+          onNewDB={() => db.newDB().then((dbs) => setDbConfig({ selected: db.selected(), dbs }))}
+          onDeleteDB={() => db.deleteDB(dbConfig.selected).then((dbs) => setDbConfig({ selected: db.selected(), dbs }))}
         />
 
         <ModalInput

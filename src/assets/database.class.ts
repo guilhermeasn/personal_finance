@@ -3,9 +3,43 @@ import type { IDatabase } from "./finance.type";
 
 export class Database implements IDatabase {
 
+  private DB: LocalForage;
   private instance: LocalForage;
+  private selectedDB: string;
 
-  constructor(dbName: string) {
+  constructor() {
+    this.selectedDB = 'DB1';
+    this.DB = localforage.createInstance({ name: "__DBS__" });
+    this.instance = localforage.createInstance({ name: this.selectedDB });
+  }
+
+  selected(): string {
+    return this.selectedDB;
+  }
+
+  async newDB(changeDB: boolean = true): Promise<string[]> {
+    const dbs = await this.getDB();
+    const newdb = 'DB' + (dbs.length + 1);
+    await this.DB.setItem<string[]>('names', [...dbs, newdb]);
+    if (changeDB) this.changeDB(newdb);
+    return await this.getDB();
+  }
+
+  async getDB(): Promise<string[]> {
+    const dbs = await this.DB.getItem<string[]>('names') ?? [];
+    return dbs.length > 0 ? dbs : ['DB1'];
+  }
+
+  async deleteDB(dbName: string): Promise<string[]> {
+    await localforage.createInstance({ name: dbName }).dropInstance();
+    const dbs = await this.getDB();
+    await this.DB.setItem<string[]>('names', dbs.filter(db => db !== dbName));
+    if (this.selectedDB === dbName) this.changeDB(dbs?.[0] ?? 'DB1');
+    return await this.getDB();
+  }
+
+  changeDB(dbName: string) {
+    this.selectedDB = dbName;
     this.instance = localforage.createInstance({ name: dbName });
   }
 
