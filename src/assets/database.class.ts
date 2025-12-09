@@ -19,7 +19,7 @@ export class Database implements IDatabase {
   private db: DatabaseName;
 
   constructor() {
-    this.db = localStorage.getItem('DB') as DatabaseName ?? 'DB0';
+    this.db = (localStorage.getItem('DB') ?? 'DB01') as DatabaseName;
     this.instance = localforage.createInstance({ name: this.db });
   }
 
