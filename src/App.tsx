@@ -32,18 +32,20 @@ export default function App() {
   const [group, setGroup] = useState<GroupData | null>(null);
   const [selection, setSelection] = useState<SelectionState>(currentDate());
 
-  useEffect(() => {
-    if (selection.category !== "__group__") finance.getMonth(selection.month, selection.year, selection.category).then(setData);
-    else finance.getGroup(selection.month, selection.year).then(setGroup);
-  }, [selection, dbConfig]);
-
   const [categories, setCategories] = useState<Category[]>([]);
-  useEffect(() => (finance.getCategories().then(setCategories), void (0)), [dbConfig]);
 
   const [dbModal, setDbModal] = useState(false);
   const [inputModal, setInputModal] = useState<boolean | Input>(false);
   const [confirmModal, setConfirmModal] = useState<string | null | [string, () => void]>(null);
   const [categoriesModal, setCategoriesModal] = useState(false);
+
+  useEffect(() => {
+    if (dbModal) return;
+    if (selection.category !== "__group__") finance.getMonth(selection.month, selection.year, selection.category).then(setData);
+    else finance.getGroup(selection.month, selection.year).then(setGroup);
+  }, [selection, dbConfig, dbModal]);
+
+  useEffect(() => (dbModal ? null : finance.getCategories().then(setCategories), void (0)), [dbConfig, dbModal]);
 
   return (
 
@@ -86,9 +88,9 @@ export default function App() {
           onSearchEmptyDB={db.emptyDB}
           onHide={() => setDbModal(false)}
           onChangeDB={db => setDbConfig(db)}
-          onDeleteDB={() => setConfirmModal([`Deseja realmente excluir o banco de dados ${dbConfig}?`, () => db.truncateDB(dbConfig)])}
+          onDeleteDB={() => setConfirmModal([`Deseja realmente excluir o banco de dados ${dbConfig}?`, () => db.truncateDB(dbConfig).then(() => setDbModal(false))])}
           onExportDB={() => db.exportDB().then((success) => success ? void (0) : setConfirmModal(`Banco de dados ${dbConfig} vazio!`))}
-          onImportDB={(data) => db.importDB(data).then(r => setConfirmModal(r ? 'Dados importados com sucesso!' : `Banco de dados ${dbConfig} não está vazio! Para importar dados, selecione um banco de dados vazio.`))}
+          onImportDB={(data) => db.importDB(data).then(r => (setConfirmModal(r ? 'Dados importados com sucesso!' : `Banco de dados ${dbConfig} não está vazio! Para importar dados, selecione um banco de dados vazio.`), setDbModal(false)))}
         />
 
         <ModalInput
