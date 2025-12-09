@@ -61,7 +61,7 @@ export default function ModalDB({ selectedDB, dbs, show, onHide, onChangeDB, onN
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="primary" type="submit">Fechar</Button>
+          <Button variant="primary" type="submit">Concluir</Button>
         </Modal.Footer>
 
       </Form>
