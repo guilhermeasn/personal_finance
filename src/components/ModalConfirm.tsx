@@ -29,7 +29,7 @@ export default function ModalConfirm({
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="outline-secondary" onClick={onHide}>
+        <Button variant="dark" onClick={onHide}>
           {isConfirm ? 'Cancelar' : 'Ok'}
         </Button>
         {isConfirm && (

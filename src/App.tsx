@@ -95,8 +95,8 @@ export default function App() {
           onHide={() => setDbModal(false)}
           onChangeDB={db => setDbConfig({ selected: db, dbs: dbConfig.dbs })}
           onNewDB={() => db.newDB().then((dbs) => setDbConfig({ selected: db.selected(), dbs }))}
-          onDeleteDB={() => setConfirmModal(["Deseja realmente excluir o banco de dados?", () => db.deleteDB(dbConfig.selected).then((dbs) => setDbConfig({ selected: db.selected(), dbs }))])}
-          onExportDB={() => db.exportDB().then((success) => success ? void (0) : setConfirmModal("Banco de dados vazio!"))}
+          onDeleteDB={() => setConfirmModal([`Deseja realmente excluir o banco de dados ${dbConfig.selected}?`, () => db.deleteDB(dbConfig.selected).then((dbs) => setDbConfig({ selected: db.selected(), dbs }))])}
+          onExportDB={() => db.exportDB().then((success) => success ? void (0) : setConfirmModal(`Banco de dados ${dbConfig.selected} vazio!`))}
           onImportDB={(data) => { db.importDB(data).then((dbs) => setDbConfig({ selected: db.selected(), dbs })) }}
         />
 
