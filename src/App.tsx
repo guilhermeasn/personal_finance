@@ -16,9 +16,10 @@ const db = new Database();
 const finance = new Finance(db);
 
 function currentDate(): SelectionState {
+  const date = new Date();
   return {
-    month: new Date().getMonth() as MonthIndex,
-    year: new Date().getFullYear(),
+    month: date.getMonth() as MonthIndex,
+    year: date.getFullYear(),
     category: ""
   }
 }
