@@ -150,11 +150,14 @@ export class Finance {
 
   async removeInput(month: MonthIndex, year: number, id: string, mode: UpdateMode): Promise<void> {
 
+    console.log(month, year, id, mode);
+
     const inputs = await this.getInputs(month, year);
     const index = inputs.findIndex(input => input.id === id);
     if (index === -1) throw new Error('Entrada não encontrada');
 
     const input = inputs[index];
+    console.log(input);
     const months = Finance.getMonths(month, year, input.step);
 
     loop: for (let m of months) {
@@ -162,7 +165,8 @@ export class Finance {
       if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
       const inputs = await this.getInputs(m.month, m.year);
       const newInputs = inputs.filter(input => input.id !== id);
-      await this.db.set<Input[]>(`${m.year}-${m.month}`, newInputs);
+      console.log(newInputs);
+      await this.db.set<Input[]>(Finance.formatMonth(m.month, m.year), newInputs);
     }
 
   }

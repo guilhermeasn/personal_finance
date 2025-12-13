@@ -95,14 +95,40 @@ export default function App() {
         />
 
         <ModalInput
-          show={inputModal === true}
+          show={inputModal}
           categories={categories}
           onHide={() => setInputModal(false)}
+          onDelete={async (id, mode) => {
+            setConfirmModal([
+              'Deseja realmente excluir a(s) entrada(s)?',
+              async () => {
+                try {
+                  await finance.removeInput(selection.month, selection.year, id, mode);
+                  await finance.getMonth(selection.month, selection.year).then(setData);
+                  return null;
+                } catch (error) {
+                  console.error(error instanceof Error ? error.message : "Erro inesperado");
+                }
+              }
+            ]);
+            return null;
+          }}
           onSave={async (input) => {
             if (input.category === "") return "Selecione uma categoria";
             if (input.description === "") return "Insira uma descrição";
             try {
               await finance.setInput(selection.month, selection.year, input);
+              await finance.getMonth(selection.month, selection.year).then(setData);
+              return null;
+            } catch (error) {
+              return error instanceof Error ? error.message : "Erro inesperado";
+            }
+          }}
+          onEdit={async (id, mode, input) => {
+            if (input.category === "") return "Selecione uma categoria";
+            if (input.description === "") return "Insira uma descrição";
+            try {
+              await finance.updateInput(selection.month, selection.year, id, mode, input);
               await finance.getMonth(selection.month, selection.year).then(setData);
               return null;
             } catch (error) {

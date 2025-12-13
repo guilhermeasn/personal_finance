@@ -1,73 +1,25 @@
-# React + TypeScript + Vite
+# Personal Finance
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é um projeto de **Gestão de Finanças Pessoais** desenvolvido em **TypeScript** e **React**, com salvamento de dados local. O objetivo é oferecer uma ferramenta simples e intuitiva para controle financeiro, com foco em facilidade de uso e flexibilidade no gerenciamento de transações recorrentes.
 
-Currently, two official plugins are available:
+## Funcionalidades Principais
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*   **Gerenciamento de Transações:** Adicione, edite e remova receitas e despesas com facilidade. Cada transação inclui valor, data, categoria e status (concluído/pendente).
+*   **Sistema de Recorrência Inteligente:** Suporte nativo para pagamentos recorrentes e parcelados. O sistema gerencia automaticamente as parcelas através de meses, permitindo edições em série (apenas a atual, desta em diante, ou todas).
+*   **Categorização Avançada:** Organize seus gastos por categorias personalizáveis. Visualize totais previstos e realizados por grupo.
+*   **Visão Mensal:** Navegação intuitiva por meses e anos, com resumo financeiro claro para cada período.
+*   **Abstração de Dados:** Arquitetura flexível com interface `IDatabase`, permitindo fácil adaptação para diferentes métodos de armazenamento.
 
-## React Compiler
+## Tecnologias Utlizadas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   TypeScript
+*   React
+*   Vite
 
-## Expanding the ESLint configuration
+## Autor
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+*   **Guilherme Neves** - [Guilherme Neves](https://github.com/guilhermeasn/)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Licença
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Este projeto está sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.

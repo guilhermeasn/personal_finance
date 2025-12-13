@@ -2,16 +2,18 @@ import { getPresetMask, useMask } from "mask-hooks";
 import { useEffect, useState } from "react";
 import { Alert, Button, FloatingLabel, Form, InputGroup, Modal } from "react-bootstrap";
 import { MdError } from "react-icons/md";
-import type { Category, CreateInput } from "../assets/finance.type";
+import type { Category, CreateInput, Input, UpdateInput, UpdateMode } from "../assets/finance.type";
 
 export type ModalInputProps = {
-  show: boolean;
+  show: boolean | Input;
   categories?: Category[];
   onHide: () => void;
   onSave: (input: CreateInput) => Promise<string | null>;
+  onDelete: (id: string, mode: UpdateMode) => Promise<string | null>;
+  onEdit: (id: string, mode: UpdateMode, input: UpdateInput) => Promise<string | null>;
 }
 
-type CreateInputForm = {
+type InputForm = {
   day: string;
   category: string;
   description: string;
@@ -21,50 +23,75 @@ type CreateInputForm = {
   done: boolean;
 }
 
-export default function ModalInput({ show, categories = [], onHide, onSave }: ModalInputProps) {
+export default function ModalInput({ show, categories = [], onHide, onSave, onDelete, onEdit }: ModalInputProps) {
+
+  const edit: boolean = typeof show !== 'boolean';
 
   const dayMask = useMask({ masks: '[1-31]' });
   const valueMask = useMask(getPresetMask('CURRENCY_PTBR'));
   const stepMask = useMask({ masks: '###' });
 
-  const dataDefault: CreateInputForm = {
+  const dataDefault: InputForm = {
     day: new Date().getDate().toString(), category: '', description: "",
     value: valueMask('0'), step_current: '1', step_total: '1', done: true
   }
 
-  const [data, setData] = useState<CreateInputForm>(dataDefault);
+  const [data, setData] = useState<InputForm>(dataDefault);
   const [error, setError] = useState<string | null>(null);
   const [wait, setWait] = useState<boolean>(false);
   const [op, setOp] = useState<'+' | '-'>('+');
+  const [mode, setMode] = useState<UpdateMode>('ONE');
 
-  useEffect(() => (setError(null), setData(dataDefault)), [show]);
+  useEffect(() => (
+    setError(null),
+    setMode('ONE'),
+    setData(typeof show === 'object' ? {
+      day: show.day.toString(),
+      category: show.category,
+      description: show.description,
+      value: valueMask(show.value.toFixed(2)),
+      step_current: show.step[0].toString(),
+      step_total: show.step[1].toString(),
+      done: show.done
+    } : dataDefault),
+    setOp(typeof show === 'object' ? (show.value < 0 ? '-' : '+') : op)
+  ), [show]);
 
-  const handlerData = (change: Partial<CreateInputForm>) => {
+  const handlerData = (change: Partial<InputForm>) => {
     setData({ ...data, ...change });
   }
 
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setWait(true);
-    const error = await onSave({
+    const input: CreateInput = {
       day: parseInt(data.day),
       category: data.category,
       description: data.description,
       value: parseFloat(data.value.replace(/[^0-9,]/g, '').replace(',', '.')) * (op === '+' ? 1 : -1),
       step: [parseInt(data.step_current), parseInt(data.step_total)],
       done: data.done
-    })
+    };
+    const error = typeof show === 'object' ? await onEdit(show.id, mode, input) : await onSave(input)
+    error ? setError(error) : onHide();
+    setWait(false);
+  }
+
+  const handleDelete = async () => {
+    if (typeof show !== 'object') return;
+    setWait(true);
+    const error = await onDelete(show.id, mode);
     error ? setError(error) : onHide();
     setWait(false);
   }
 
   return (
 
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={!!show} onHide={onHide} centered>
 
-      <Modal.Header className="rounded-bottom-0 alert alert-dark" closeButton>
+      <Modal.Header className={"rounded-bottom-0 alert alert-" + (edit ? 'warning' : 'dark')} closeButton>
         <Modal.Title>
-          Nova Entrada
+          {edit ? 'Editar' : 'Nova'} Entrada
         </Modal.Title>
       </Modal.Header>
 
@@ -119,15 +146,25 @@ export default function ModalInput({ show, categories = [], onHide, onSave }: Mo
           <InputGroup>
 
             <FloatingLabel className="my-2" label="Parcela">
-              <Form.Control type="text" placeholder=" " value={data.step_current} onChange={(e) => handlerData({ step_current: stepMask(e.target.value) })} disabled={wait} />
+              <Form.Control type="text" placeholder=" " value={data.step_current} onChange={(e) => handlerData({ step_current: stepMask(e.target.value) })} disabled={wait || edit} />
             </FloatingLabel>
 
             <FloatingLabel className="my-2" label="Total">
-              <Form.Control type="text" placeholder=" " value={data.step_total} onChange={(e) => handlerData({ step_total: stepMask(e.target.value) })} disabled={wait} />
+              <Form.Control type="text" placeholder=" " value={data.step_total} onChange={(e) => handlerData({ step_total: stepMask(e.target.value) })} disabled={wait || edit} />
             </FloatingLabel>
 
           </InputGroup>
 
+          {edit ? (
+            <FloatingLabel className="my-2" label="Modificar">
+              <Form.Select value={mode} onChange={(e) => setMode(e.target.value as UpdateMode)} disabled={wait || (typeof show === 'object' && show.step[0] === 1 && show.step[1] === 1)}>
+                <option value="ONE">Apenas esta entrada</option>
+                <option value="ALL">Todas as entradas</option>
+                <option value="BACKWARD">Esta entrada e as anteriores</option>
+                <option value="FORWARD">Esta entrada e as posteriores</option>
+              </Form.Select>
+            </FloatingLabel>
+          ) : null}
 
           <div className="d-flex justify-content-center">
             <Form.Check
@@ -145,7 +182,12 @@ export default function ModalInput({ show, categories = [], onHide, onSave }: Mo
           <Button variant="outline-secondary" onClick={onHide} disabled={wait}>
             Cancelar
           </Button>
-          <Button variant="dark" type="submit" disabled={wait}>
+          {typeof show === 'object' ? (
+            <Button variant="outline-danger" onClick={handleDelete} disabled={wait}>
+              Excluir
+            </Button>
+          ) : null}
+          <Button variant={edit ? 'warning' : 'dark'} type="submit" disabled={wait}>
             Salvar
           </Button>
         </Modal.Footer>
