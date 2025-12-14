@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Database, type DatabaseName } from "./assets/database.class";
 import { Finance } from "./assets/finance.class";
-import type { Category, GroupData, Input, MonthData, MonthIndex } from "./assets/finance.type";
+import type { Category, CreateInput, GroupData, Input, MonthData, MonthIndex, UpdateInput, UpdateMode } from "./assets/finance.type";
 import Buttons from "./components/Buttons";
 import Groups from "./components/Groups";
 import Header from "./components/Header";
@@ -47,6 +47,55 @@ export default function App() {
   }, [selection, dbConfig, dbModal]);
 
   useEffect(() => (dbModal ? null : finance.getCategories().then(setCategories), void (0)), [dbConfig, dbModal]);
+
+  const handleSave = async (input: CreateInput) => {
+    if (input.category === "") return "Selecione uma categoria";
+    if (input.description === "") return "Insira uma descrição";
+    try {
+      await finance.setInput(selection.month, selection.year, input);
+      if (selection.category !== "__group__")
+        await finance.getMonth(selection.month, selection.year).then(setData);
+      else
+        await finance.getGroup(selection.month, selection.year).then(setGroup);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : "Erro inesperado";
+    }
+  }
+
+  const handleEdit = async (id: string, mode: UpdateMode, input: UpdateInput) => {
+    if (input.category === "") return "Selecione uma categoria";
+    if (input.description === "") return "Insira uma descrição";
+    try {
+      await finance.updateInput(selection.month, selection.year, id, mode, input);
+      if (selection.category !== "__group__")
+        await finance.getMonth(selection.month, selection.year).then(setData);
+      else
+        await finance.getGroup(selection.month, selection.year).then(setGroup);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : "Erro inesperado";
+    }
+  }
+
+  const handleDelete = async (id: string, mode: UpdateMode) => {
+    setConfirmModal([
+      'Deseja realmente excluir a(s) entrada(s)?',
+      async () => {
+        try {
+          await finance.removeInput(selection.month, selection.year, id, mode);
+          if (selection.category !== "__group__")
+            await finance.getMonth(selection.month, selection.year).then(setData);
+          else
+            await finance.getGroup(selection.month, selection.year).then(setGroup);
+          return null;
+        } catch (error) {
+          console.error(error instanceof Error ? error.message : "Erro inesperado");
+        }
+      }
+    ]);
+    return null;
+  }
 
   return (
 
@@ -98,43 +147,9 @@ export default function App() {
           show={inputModal}
           categories={categories}
           onHide={() => setInputModal(false)}
-          onDelete={async (id, mode) => {
-            setConfirmModal([
-              'Deseja realmente excluir a(s) entrada(s)?',
-              async () => {
-                try {
-                  await finance.removeInput(selection.month, selection.year, id, mode);
-                  await finance.getMonth(selection.month, selection.year).then(setData);
-                  return null;
-                } catch (error) {
-                  console.error(error instanceof Error ? error.message : "Erro inesperado");
-                }
-              }
-            ]);
-            return null;
-          }}
-          onSave={async (input) => {
-            if (input.category === "") return "Selecione uma categoria";
-            if (input.description === "") return "Insira uma descrição";
-            try {
-              await finance.setInput(selection.month, selection.year, input);
-              await finance.getMonth(selection.month, selection.year).then(setData);
-              return null;
-            } catch (error) {
-              return error instanceof Error ? error.message : "Erro inesperado";
-            }
-          }}
-          onEdit={async (id, mode, input) => {
-            if (input.category === "") return "Selecione uma categoria";
-            if (input.description === "") return "Insira uma descrição";
-            try {
-              await finance.updateInput(selection.month, selection.year, id, mode, input);
-              await finance.getMonth(selection.month, selection.year).then(setData);
-              return null;
-            } catch (error) {
-              return error instanceof Error ? error.message : "Erro inesperado";
-            }
-          }}
+          onDelete={handleDelete}
+          onSave={handleSave}
+          onEdit={handleEdit}
         />
 
         <ModalCategories
