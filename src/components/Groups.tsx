@@ -11,8 +11,8 @@ export default function Groups({ data, onCategory }: GroupsProps) {
 
   return (
     <Container>
-      <div className="rounded p-3 bg-warning-table">
-        <Table className="p-0 m-0" variant="warning" responsive>
+      <div className="rounded p-3 bg-white">
+        <Table className="p-0 m-0" variant="white" responsive>
 
           <thead>
             <tr>
@@ -24,14 +24,14 @@ export default function Groups({ data, onCategory }: GroupsProps) {
 
           <tbody>
             {data && Object.entries(data).map(([category, value]) => category !== '__total__' ? (
-              <tr key={category} className="border-warning-table clickable" onClick={() => onCategory(category)}>
+              <tr key={category} className="border-white clickable" onClick={() => onCategory(category)}>
                 <td className="text-start text-dark">{value.name}</td>
                 <td className={tdClass(value.done, "text-center")}>{value.done.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                 <td className={tdClass(value.total, "text-end")}>{value.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
               </tr>
             ) : (
               <tr key="no-data">
-                <td colSpan={3} className="m-0 p-0 text-center">
+                <td colSpan={3} className="m-0 py-2 text-center">
                   Nenhum dado encontrado
                 </td>
               </tr>
@@ -47,14 +47,14 @@ export default function Groups({ data, onCategory }: GroupsProps) {
               </tr>
 
               <tr>
-                <th className="border-warning-table text-start text-dark h5">
+                <th className="border-white text-start text-dark h5">
                   Total
                 </th>
-                <th className={tdClass(data.__total__.done, "border-warning-table text-center")}>
+                <th className={tdClass(data.__total__.done, "border-white text-center")}>
                   {data.__total__.done.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
 
-                <th className={tdClass(data.__total__.total, "border-warning-table text-end")}>
+                <th className={tdClass(data.__total__.total, "border-white text-end")}>
                   {data.__total__.total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </th>
               </tr>
