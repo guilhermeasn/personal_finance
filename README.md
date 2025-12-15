@@ -1,5 +1,7 @@
 # Personal Finance
 
+[![Deploy to Pages](https://github.com/guilhermeasn/personal_finance/actions/workflows/deploy.yml/badge.svg)](https://github.com/guilhermeasn/personal_finance/actions/workflows/deploy.yml)
+
 Este é um projeto de **Gestão de Finanças Pessoais** desenvolvido em **TypeScript** e **React**, com salvamento de dados local. O objetivo é oferecer uma ferramenta simples e intuitiva para controle financeiro, com foco em facilidade de uso e flexibilidade no gerenciamento de transações recorrentes.
 
 [Acessar Personal Finance Github Pages](https://guilhermeasn.github.io/personal_finance/)
