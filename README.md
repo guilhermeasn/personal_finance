@@ -2,7 +2,7 @@
 
 Este é um projeto de **Gestão de Finanças Pessoais** desenvolvido em **TypeScript** e **React**, com salvamento de dados local. O objetivo é oferecer uma ferramenta simples e intuitiva para controle financeiro, com foco em facilidade de uso e flexibilidade no gerenciamento de transações recorrentes.
 
-[Personal Finance](https://guilhermeasn.github.io/personal_finance/)
+[Acessar Personal Finance Github Pages](https://guilhermeasn.github.io/personal_finance/)
 
 ## Funcionalidades Principais
 
