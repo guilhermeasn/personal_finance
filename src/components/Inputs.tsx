@@ -3,6 +3,7 @@ import { MdOutlineCheckCircle } from "react-icons/md";
 import type { Category, Input, MonthData } from "../assets/finance.type";
 
 export type InputProps = {
+  title?: string;
   categories?: Category[];
   data?: MonthData | null;
   onEdit?: (input: Input) => void;
@@ -12,12 +13,20 @@ export function tdClass(value: number, className?: string): string {
   return 'text-' + (value < 0 ? "danger" : (value > 0 ? "primary" : "secondary")) + (className ? " " + className : "");
 }
 
-export default function Inputs({ categories = [], data = null, onEdit = () => { } }: InputProps) {
+export default function Inputs({ title = '', categories = [], data = null, onEdit = () => { } }: InputProps) {
 
   return (
     <Container>
       <div className="rounded p-3 bg-white">
         <Table className="p-0 m-0" variant="white" responsive>
+
+          <thead>
+            <tr>
+              <th className="text-center small">
+                { title }
+              </th>
+            </tr>
+          </thead>
 
           <tbody className="small">
 

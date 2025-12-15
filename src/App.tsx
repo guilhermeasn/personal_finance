@@ -114,6 +114,7 @@ export default function App() {
 
         {selection.category !== "__group__" ? (
           <Inputs
+            title={`${selection.month+1}/${selection.year}`}
             categories={categories}
             data={data}
             onEdit={setInputModal}
