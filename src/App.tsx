@@ -121,6 +121,7 @@ export default function App() {
           />
         ) : (
           <Groups
+            title={`${selection.month + 1}/${selection.year}`}
             data={group}
             onCategory={category => setSelection({ ...selection, category })}
           />

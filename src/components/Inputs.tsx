@@ -10,7 +10,7 @@ export type InputProps = {
 }
 
 export function tdClass(value: number, className?: string): string {
-  return 'text-' + (value < 0 ? "danger" : (value > 0 ? "primary" : "secondary")) + (className ? " " + className : "");
+  return 'text-' + (value < 0 ? "debit" : (value > 0 ? "credit" : "secondary")) + (className ? " " + className : "");
 }
 
 export default function Inputs({ title = '', categories = [], data = null, onEdit = () => { } }: InputProps) {
@@ -22,8 +22,8 @@ export default function Inputs({ title = '', categories = [], data = null, onEdi
 
           <thead>
             <tr>
-              <th className="text-center small">
-                { title }
+              <th colSpan={5} className="text-secondary text-center small">
+                {title}
               </th>
             </tr>
           </thead>

@@ -59,8 +59,9 @@ export class Database implements IDatabase {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+    const date = new Date();
     a.href = url;
-    a.download = this.db + '.json';
+    a.download = this.db + `_${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     return true;
