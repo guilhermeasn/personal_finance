@@ -143,7 +143,7 @@ export class Finance {
     loop: for (let m of months) {
       if (m.moment === '<' && (mode === 'ONE' || mode === 'FORWARD')) continue loop;
       if (m.moment === '>' && (mode === 'ONE' || mode === 'BACKWARD')) continue loop;
-      await this.insertInput(m.month, m.year, { ...input, ...update })
+      await this.insertInput(m.month, m.year, { ...input, ...update, step: m.step });
     }
 
   }
