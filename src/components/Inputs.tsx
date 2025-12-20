@@ -1,5 +1,5 @@
-import { Container, Table } from "react-bootstrap";
-import { MdEditCalendar, MdOutlineCheckCircle } from "react-icons/md";
+import { Button, Container, Table } from "react-bootstrap";
+import { MdOutlineCheckCircle, MdOutlineFilterAlt } from "react-icons/md";
 import type { Category, Input, MonthData } from "../assets/finance.type";
 
 export type InputProps = {
@@ -23,12 +23,15 @@ export default function Inputs({ title = '', categories = [], data = null, onEdi
 
           <thead>
             <tr>
-              <th colSpan={5} className="text-secondary text-center small">
-                {onHeaderClick ? (
-                  <span className="clickable d-flex align-items-center justify-content-center gap-2" onClick={onHeaderClick}>
-                    {title} <MdEditCalendar size={18} />
-                  </span>
-                ) : title}
+              <th colSpan={5} className="text-secondary text-center small ">
+
+                <div className="d-flex align-items-center justify-content-center gap-2">
+                  <span>{title}</span>
+                  <Button variant="link" onClick={onHeaderClick}>
+                    <MdOutlineFilterAlt size={22} />
+                  </Button>
+                </div>
+
               </th>
             </tr>
           </thead>

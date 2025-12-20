@@ -53,7 +53,7 @@ export default function ModalSelect({ show, onHide, categories, onSave }: ModalS
       </Modal.Header>
 
       <Modal.Body>
-        <FloatingLabel className="my-2" label="Categoria">
+        <FloatingLabel className="mb-2" label="Categoria">
           <Form.Select
             value={localState.category}
             onChange={(e) => setLocalState({ ...localState, category: e.target.value })}

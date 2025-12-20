@@ -1,5 +1,5 @@
 import { Container, Table } from "react-bootstrap";
-import { MdEditCalendar } from "react-icons/md";
+import { MdOutlineFilterAlt } from "react-icons/md";
 import type { GroupData } from "../assets/finance.type";
 import { tdClass } from "./Inputs";
 
@@ -22,7 +22,7 @@ export default function Groups({ title = '', data, onCategory, onHeaderClick }: 
               <th colSpan={3} className="text-center text-secondary small">
                 {onHeaderClick ? (
                   <span className="clickable d-flex align-items-center justify-content-center gap-2" onClick={onHeaderClick}>
-                    {title} <MdEditCalendar size={18} />
+                    {title} <MdOutlineFilterAlt size={22} />
                   </span>
                 ) : title}
               </th>
