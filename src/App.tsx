@@ -10,7 +10,14 @@ import ModalCategories from "./components/ModalCategories";
 import ModalConfirm from "./components/ModalConfirm";
 import ModalDB from "./components/ModalDB";
 import ModalInput from "./components/ModalInput";
-import Selection, { type SelectionState } from "./components/Selection";
+import ModalSelect, { type SelectState as SelectionState } from "./components/ModalSelect";
+
+const months = [
+  "Janeiro", "Fevereiro", "Março",
+  "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro",
+  "Outubro", "Novembro", "Dezembro"
+];
 
 const db = new Database();
 const finance = new Finance(db);
@@ -39,10 +46,11 @@ export default function App() {
   const [inputModal, setInputModal] = useState<boolean | Input>(false);
   const [confirmModal, setConfirmModal] = useState<string | null | [string, () => void]>(null);
   const [categoriesModal, setCategoriesModal] = useState(false);
+  const [selectModal, setSelectModal] = useState(false);
 
   useEffect(() => {
     if (dbModal) return;
-    if (selection.category !== "__group__") finance.getMonth(selection.month, selection.year, selection.category).then(setData);
+    if (selection.category) finance.getMonth(selection.month, selection.year, selection.category).then(setData);
     else finance.getGroup(selection.month, selection.year).then(setGroup);
   }, [selection, dbConfig, dbModal]);
 
@@ -53,8 +61,8 @@ export default function App() {
     if (input.description === "") return "Insira uma descrição";
     try {
       await finance.setInput(selection.month, selection.year, input);
-      if (selection.category !== "__group__")
-        await finance.getMonth(selection.month, selection.year).then(setData);
+      if (selection.category)
+        await finance.getMonth(selection.month, selection.year, selection.category).then(setData);
       else
         await finance.getGroup(selection.month, selection.year).then(setGroup);
       return null;
@@ -68,8 +76,8 @@ export default function App() {
     if (input.description === "") return "Insira uma descrição";
     try {
       await finance.updateInput(selection.month, selection.year, id, mode, input);
-      if (selection.category !== "__group__")
-        await finance.getMonth(selection.month, selection.year).then(setData);
+      if (selection.category)
+        await finance.getMonth(selection.month, selection.year, selection.category).then(setData);
       else
         await finance.getGroup(selection.month, selection.year).then(setGroup);
       return null;
@@ -84,8 +92,8 @@ export default function App() {
       async () => {
         try {
           await finance.removeInput(selection.month, selection.year, id, mode);
-          if (selection.category !== "__group__")
-            await finance.getMonth(selection.month, selection.year).then(setData);
+          if (selection.category)
+            await finance.getMonth(selection.month, selection.year, selection.category).then(setData);
           else
             await finance.getGroup(selection.month, selection.year).then(setGroup);
           return null;
@@ -103,27 +111,22 @@ export default function App() {
 
       <Header onChangeDataBase={() => setDbModal(true)} />
 
-      <main>
+      <main className="my-3">
 
-        <Selection
-          state={selection}
-          onChange={setSelection}
-          onReset={() => setSelection(currentDate())}
-          categories={categories}
-        />
-
-        {selection.category !== "__group__" ? (
+        {selection.category ? (
           <Inputs
-            title={`${selection.month + 1}/${selection.year}`}
+            title={(categories.find(c => c.id === selection.category)?.name || 'Categoria Desconhecida') + ' - ' + months[selection.month] + ' / ' + selection.year}
             categories={categories}
             data={data}
             onEdit={setInputModal}
+            onHeaderClick={() => setSelectModal(true)}
           />
         ) : (
           <Groups
-            title={`${selection.month + 1}/${selection.year}`}
+            title={months[selection.month] + ' / ' + selection.year}
             data={group}
             onCategory={category => setSelection({ ...selection, category })}
+            onHeaderClick={() => setSelectModal(true)}
           />
         )}
 
@@ -152,6 +155,13 @@ export default function App() {
           onDelete={handleDelete}
           onSave={handleSave}
           onEdit={handleEdit}
+        />
+
+        <ModalSelect
+          show={selectModal}
+          onHide={() => setSelectModal(false)}
+          categories={categories}
+          onSave={setSelection}
         />
 
         <ModalCategories

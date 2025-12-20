@@ -1,4 +1,5 @@
 import { Container, Table } from "react-bootstrap";
+import { MdEditCalendar } from "react-icons/md";
 import type { GroupData } from "../assets/finance.type";
 import { tdClass } from "./Inputs";
 
@@ -6,9 +7,10 @@ export type GroupsProps = {
   title?: string;
   data: GroupData | null;
   onCategory: (category: string) => void;
+  onHeaderClick?: () => void;
 }
 
-export default function Groups({ title = '', data, onCategory }: GroupsProps) {
+export default function Groups({ title = '', data, onCategory, onHeaderClick }: GroupsProps) {
 
   return (
     <Container>
@@ -18,7 +20,11 @@ export default function Groups({ title = '', data, onCategory }: GroupsProps) {
           <thead>
             <tr className="border-white">
               <th colSpan={3} className="text-center text-secondary small">
-                {title}
+                {onHeaderClick ? (
+                  <span className="clickable d-flex align-items-center justify-content-center gap-2" onClick={onHeaderClick}>
+                    {title} <MdEditCalendar size={18} />
+                  </span>
+                ) : title}
               </th>
             </tr>
             <tr>

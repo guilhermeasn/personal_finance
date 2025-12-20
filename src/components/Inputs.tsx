@@ -1,5 +1,5 @@
 import { Container, Table } from "react-bootstrap";
-import { MdOutlineCheckCircle } from "react-icons/md";
+import { MdEditCalendar, MdOutlineCheckCircle } from "react-icons/md";
 import type { Category, Input, MonthData } from "../assets/finance.type";
 
 export type InputProps = {
@@ -7,13 +7,14 @@ export type InputProps = {
   categories?: Category[];
   data?: MonthData | null;
   onEdit?: (input: Input) => void;
+  onHeaderClick?: () => void;
 }
 
 export function tdClass(value: number, className?: string): string {
   return 'text-' + (value < 0 ? "debit" : (value > 0 ? "credit" : "secondary")) + (className ? " " + className : "");
 }
 
-export default function Inputs({ title = '', categories = [], data = null, onEdit = () => { } }: InputProps) {
+export default function Inputs({ title = '', categories = [], data = null, onEdit = () => { }, onHeaderClick }: InputProps) {
 
   return (
     <Container>
@@ -23,7 +24,11 @@ export default function Inputs({ title = '', categories = [], data = null, onEdi
           <thead>
             <tr>
               <th colSpan={5} className="text-secondary text-center small">
-                {title}
+                {onHeaderClick ? (
+                  <span className="clickable d-flex align-items-center justify-content-center gap-2" onClick={onHeaderClick}>
+                    {title} <MdEditCalendar size={18} />
+                  </span>
+                ) : title}
               </th>
             </tr>
           </thead>
